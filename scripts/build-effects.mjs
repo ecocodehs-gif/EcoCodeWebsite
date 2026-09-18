@@ -1,5 +1,6 @@
 import { build } from 'esbuild';
 import { createRequire } from 'node:module';
+import { cp, mkdir } from 'node:fs/promises';
 const require = createRequire(import.meta.url);
 
 // Reuse the page's React 18 UMD runtime, including Motion's hooks, rather than
@@ -36,3 +37,19 @@ for (const page of ['index', 'projects']) {
     jsxFactory: 'React.createElement', jsxFragment: 'React.Fragment'
   });
 }
+
+// Vercel's default static output directory is `public`. Keep the source files
+// at the repository root for local static hosting, then assemble the deploy
+// directory after all generated assets have been written.
+await mkdir('public', { recursive: true });
+await Promise.all([
+  cp('index.html', 'public/index.html'),
+  cp('projects.html', 'public/projects.html'),
+  cp('assets/theme.css', 'public/assets/theme.css'),
+  cp('assets/hero-effects.css', 'public/assets/hero-effects.css'),
+  cp('assets/hero-effects.js', 'public/assets/hero-effects.js'),
+  cp('assets/hero-effects.js.LEGAL.txt', 'public/assets/hero-effects.js.LEGAL.txt'),
+  cp('assets/index-runtime.js', 'public/assets/index-runtime.js'),
+  cp('assets/projects-runtime.js', 'public/assets/projects-runtime.js'),
+  cp('assets/eco-logo.svg', 'public/assets/eco-logo.svg')
+]);
