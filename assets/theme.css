@@ -29,6 +29,47 @@ html { scroll-behavior: auto; }
     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2316a34a' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
+.hero-scroll-indicator {
+    position: absolute;
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+    left: 50%;
+    z-index: 10;
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    color: #4ade80;
+    transform: translateX(-50%);
+    transition: color 180ms ease, transform 180ms ease;
+}
+
+.hero-scroll-indicator span {
+    display: block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-right: 3px solid currentColor;
+    border-bottom: 3px solid currentColor;
+    transform: translateY(-0.2rem) rotate(45deg);
+    animation: hero-arrow-bounce 1.8s ease-in-out infinite;
+}
+
+.hero-scroll-indicator:hover,
+.hero-scroll-indicator:focus-visible {
+    color: #ffffff;
+    transform: translateX(-50%) translateY(0.2rem);
+}
+
+.hero-scroll-indicator:focus-visible {
+    outline: 2px solid #4ade80;
+    outline-offset: 4px;
+    border-radius: 999px;
+}
+
+@keyframes hero-arrow-bounce {
+    0%, 100% { transform: translateY(-0.2rem) rotate(45deg); }
+    50% { transform: translateY(0.2rem) rotate(45deg); }
+}
+
 /* ---------- Aurora bars (section backdrop, painted in brand greens) ----------
    Built from gradients only: no mask-image, filter, box-shadow, clipping or will-change.
    Those all force a layer to be re-rastered every frame while ScrollSmoother is
@@ -529,6 +570,7 @@ html { scroll-behavior: auto; }
 @media (prefers-reduced-motion: reduce) {
     .aurora-bar { animation: none; opacity: 0.5; }
     .aurora-bar::after { animation: none; transform: translate3d(0, 20%, 0); }
+    .hero-scroll-indicator span { animation: none; }
 }
 
 /* ---------- Responsive layouts and touch navigation ---------- */
