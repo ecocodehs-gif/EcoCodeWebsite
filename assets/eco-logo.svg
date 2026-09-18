@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="134" height="34" viewBox="0 0 134 34" role="img" aria-label="EcoCode Incubator">
+  <path d="M6 30C6 15.6 16.6 5 31 5c0 14.4-10.6 25-25 25Z" fill="#4ade80" fill-opacity="0.18" stroke="#4ade80" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M11 25 25 11" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
+  <text x="41" y="24" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#f8fafc" letter-spacing="0.2">EcoCode<tspan fill="#4ade80">.</tspan></text>
+</svg>
