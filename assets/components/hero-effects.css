@@ -1,0 +1,47 @@
+/* Site-specific sizing on top of the supplied BorderGlow styles. */
+#start-building-glow, #view-repos-glow { display: flex; }
+#start-building-glow > .border-glow-card, #view-repos-glow > .border-glow-card { width: 100%; }
+.start-building-button, .view-repos-button {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.35);
+}
+.start-building-button:hover { --card-bg: #15803d !important; }
+.start-building-button:focus-visible, .view-repos-button:focus-visible { outline: 2px solid #4ade80; outline-offset: 5px; }
+.why-software-glow > .border-glow-card { height: 100%; }
+.border-glow-feature { box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
+.border-glow-card::before,
+.border-glow-card::after { pointer-events: none; }
+.border-glow-inner { overflow: visible; }
+.blur-text-word { display: inline-block; }
+
+/* Contain glow layer geometry so it never widens a phone viewport. */
+@media (max-width: 1023px) {
+  .border-glow-card { --glow-padding: 0px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blur-text-word { filter: none !important; }
+  .border-glow-card::before, .border-glow-card::after,
+  .border-glow-card > .edge-light { transition: none; }
+}
+
+.border-glow-card:focus-within { --edge-proximity: 100 !important; }
+.blur-text-accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.view-repos-button { border: 2px solid #4b5563; }
+.view-repos-button:hover { border-color: #9ca3af; }
+
+.blur-text-word.blur-text-revealed { filter: none !important; }
