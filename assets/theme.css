@@ -171,7 +171,10 @@ html { scroll-behavior: auto; }
     color: var(--sprint-link-hover);
 }
 
-/* Vertical rail through the phase list; the fill is scrubbed to your progress. */
+/* Vertical rail through the phase list; the fill is scrubbed to your progress.
+   The script overrides top/height so the rail runs dot centre to dot centre
+   rather than the full height of the list; the values here are the fallback
+   for when that script cannot run. */
 .timeline-track {
     position: absolute;
     top: 0;
@@ -194,11 +197,13 @@ html { scroll-behavior: auto; }
     background: linear-gradient(180deg, #4ade80, #16a34a 55%, #14532d);
 }
 
-/* Phase markers: centred on the rail, lit up one at a time as you scroll through. */
+/* Phase markers: centred on the rail, lit up one at a time as you scroll through.
+   Auto margins on all four insets centre the dot in its row without a transform,
+   so the scale tween gsap applies to the active dot is free to write its own
+   transform without nudging the dot off the rail. */
 .phase-dot {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    margin: auto;
     box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.14);
 }
 

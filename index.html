@@ -319,6 +319,36 @@
                 const rail = sprint.querySelector('.timeline-progress');
                 const phases = gsap.utils.toArray(sprint.querySelectorAll('.sprint-phase'));
                 const dots = gsap.utils.toArray(sprint.querySelectorAll('.phase-dot'));
+                const track = sprint.querySelector('.timeline-track');
+
+                /* ---- Rail is centred on the dots, not the list ----
+                   Every dot is centred on its own row, so a rail spanning the whole
+                   list hangs half a phase past the first and last dots — a mismatch
+                   that changes as the phase copy wraps to different line counts.
+                   Drawn here from dot centre to dot centre instead, so its two ends sit
+                   dead centre of the end dots, and re-measured whenever the copy
+                   reflows (resize, webfont swap, late images). */
+                const centreRail = () => {
+                    if (!track || dots.length < 2) return;
+
+                    const firstRow = dots[0].parentElement;
+                    const lastRow = dots[dots.length - 1].parentElement;
+
+                    // Zero height means the dots are display:none here, so the rail is too.
+                    if (!dots[0].offsetHeight || !dots[dots.length - 1].offsetHeight) return;
+
+                    const from = firstRow.offsetTop + firstRow.offsetHeight / 2;
+                    const to = lastRow.offsetTop + lastRow.offsetHeight / 2;
+
+                    track.style.top = `${from}px`;
+                    track.style.bottom = 'auto';
+                    track.style.height = `${to - from}px`;
+                };
+
+                centreRail();
+                window.addEventListener('resize', centreRail);
+                window.addEventListener('load', centreRail);
+                if (document.fonts && document.fonts.ready) document.fonts.ready.then(centreRail);
 
                 // Small enough that the whole timeline is on screen to start with, capped so
                 // the push is still obvious when the stage already fits.
