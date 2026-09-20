@@ -254,10 +254,14 @@
                 mm.add('(min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () =>
                     build(true, { from: pushStart, peak: () => PUSH_TO, travel: () => travelDown(PUSH_TO) }));
 
-                // Keep a gentle zoom on small screens, ending at natural size so
-                // the timeline remains readable without clipping or pinning.
+                // Small screens get the same pinned push-in and descent as desktop;
+                // the rail sits along the left edge there (see theme.css) and its
+                // copy never leaves natural scale, so no separate branch is needed.
+                // The query set stays the exact complement of the desktop branch
+                // (matchMedia only fires when at least one condition matches), so
+                // every viewport still lands in exactly one branch.
                 mm.add('(max-width: 1023px) and (prefers-reduced-motion: no-preference), (max-height: 699px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference)', () =>
-                    build(false, { from: () => 0.94, peak: () => 1, travel: () => 0 }));
+                    build(true, { from: pushStart, peak: () => PUSH_TO, travel: () => travelDown(PUSH_TO) }));
             }
 
             /* ---- In-page anchors go through the smoother, closing the nav first ---- */
@@ -755,19 +759,21 @@
                 );
             };
 
-            /* ---- Swap these three for the real EcoCode accounts ---- */
             const SOCIALS = {
-                discord: 'https://discord.gg/ecocode',
+                discord: 'https://discord.gg/rBKjsqp62f',
                 github: 'https://github.com/ecocodehs-gif',
-                instagram: 'https://instagram.com/ecocode'
+                instagram: 'https://www.instagram.com/ecocode.hs/'
             };
+
+            // Pitch-an-idea form; also linked from the projects page CTA button.
+            const PITCH_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe8jXCI5PJqd5-YQhOikwNoQyigVHh08dyGxh6m30CbZzfGGw/viewform?usp=publish-editor';
 
             const menuItems = [
                 { label: 'Home', ariaLabel: 'Back to the top', link: '#top' },
                 { label: 'About', ariaLabel: 'Learn about EcoCode', link: '#about' },
                 { label: 'The Sprint', ariaLabel: 'See the 14-week sprint', link: '#sprint' },
                 { label: 'Projects', ariaLabel: 'View our target projects', link: 'projects.html' },
-                { label: 'Join Us', ariaLabel: 'Join the EcoCode incubator', link: '#join' }
+                { label: 'Pitch an Idea', ariaLabel: 'Pitch your project idea', link: PITCH_FORM }
             ];
 
             const socialItems = [

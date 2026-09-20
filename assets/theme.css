@@ -623,7 +623,17 @@ img, video { max-width: 100%; height: auto; }
     #smooth-content > section > div > .mb-16 { margin-bottom: 2rem; }
     #smooth-content .grid { gap: 1.5rem; }
     .sprint { min-height: auto; }
-    .sprint .sprint-phase { text-align: left; border-left: 3px solid #16a34a; padding-left: 1rem; }
+    /* The timeline rail now shows on phones too (the JS runs its pinned
+       scroll/zoom there), so park it along the left edge beside the copy.
+       Dots are hidden at this width — see .phase-dot below — and the rail's
+       height keeps the fallback full-list span, which is what centreRail
+       would compute from the phase rows anyway. */
+    .timeline-track { left: 6px; transform: none; width: 3px; }
+    .phase-dot { display: none; }
+    /* The left rail is the only spine on phones — drop the old per-phase
+       border so the copy isn't flanked by two parallel lines. The padding
+       just clears the rail. */
+    .sprint .sprint-phase { text-align: left; padding-left: 1.5rem; }
     .sprint-link { min-height: 44px; }
     .sprint-link i { flex-shrink: 0; }
     article > .flex.justify-between { gap: 0.75rem; flex-wrap: wrap; }

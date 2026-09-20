@@ -5,23 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Target Projects | EcoCode Incubator</title>
     <meta name="description" content="The local problems EcoCode sprint teams are aiming at, scoped for 14 weeks, no budget and no hardware.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            light: '#4ade80', // green-400
-                            DEFAULT: '#16a34a', // green-600
-                            dark: '#14532d', // green-900
-                            nav: '#0f172a', // slate-900
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Tailwind is precompiled by `npm run build` (see tailwind.config.js); the
+         Play CDN's in-browser compiler is the main source of scroll jank on the
+         projects page, so it must not come back. -->
+    <link rel="stylesheet" href="assets/tailwind.compiled.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/theme.css">
 
@@ -259,7 +246,7 @@
                     <h2 class="text-3xl font-bold mb-6">Got a Better Problem?</h2>
                     <p class="text-lg text-gray-300 mb-10">The board is not fixed. If you can name the user, the pain and the number you would move, the sprint is yours to claim.</p>
                     <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                        <a href="index.html#join" class="bg-brand hover:bg-brand-light text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center justify-center">
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSe8jXCI5PJqd5-YQhOikwNoQyigVHh08dyGxh6m30CbZzfGGw/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="bg-brand hover:bg-brand-light text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center justify-center">
                             <i class="fa-solid fa-rocket mr-2"></i> Pitch a Project
                         </a>
                         <a href="index.html#sprint" class="bg-gray-800 border-2 border-gray-600 hover:border-gray-400 text-white font-bold py-3 px-8 rounded-lg transition flex items-center justify-center">

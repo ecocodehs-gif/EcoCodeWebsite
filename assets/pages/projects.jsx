@@ -719,19 +719,21 @@
                 );
             };
 
-            /* ---- Swap these three for the real EcoCode accounts ---- */
             const SOCIALS = {
-                discord: 'https://discord.gg/ecocode',
+                discord: 'https://discord.gg/rBKjsqp62f',
                 github: 'https://github.com/ecocodehs-gif',
-                instagram: 'https://instagram.com/ecocode'
+                instagram: 'https://www.instagram.com/ecocode.hs/'
             };
+
+            // Pitch-an-idea form; also linked from this page's CTA button.
+            const PITCH_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe8jXCI5PJqd5-YQhOikwNoQyigVHh08dyGxh6m30CbZzfGGw/viewform?usp=publish-editor';
 
             const menuItems = [
                 { label: 'Home', ariaLabel: 'Back to the home page', link: 'index.html' },
                 { label: 'About', ariaLabel: 'Learn about EcoCode', link: 'index.html#about' },
                 { label: 'The Sprint', ariaLabel: 'See the 14-week sprint', link: 'index.html#sprint' },
                 { label: 'Projects', ariaLabel: 'View our target projects', link: 'projects.html' },
-                { label: 'Join Us', ariaLabel: 'Join the EcoCode incubator', link: 'index.html#join' }
+                { label: 'Pitch an Idea', ariaLabel: 'Pitch your project idea', link: PITCH_FORM }
             ];
 
             const socialItems = [

@@ -46,6 +46,7 @@ await Promise.all([
   cp('index.html', 'public/index.html'),
   cp('projects.html', 'public/projects.html'),
   cp('assets/theme.css', 'public/assets/theme.css'),
+  cp('assets/tailwind.compiled.css', 'public/assets/tailwind.compiled.css'),
   cp('assets/hero-effects.css', 'public/assets/hero-effects.css'),
   cp('assets/hero-effects.js', 'public/assets/hero-effects.js'),
   cp('assets/hero-effects.js.LEGAL.txt', 'public/assets/hero-effects.js.LEGAL.txt'),

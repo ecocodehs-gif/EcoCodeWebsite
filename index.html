@@ -4,23 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>EcoCode Incubator | Tech for Good</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            light: '#4ade80', // green-400
-                            DEFAULT: '#16a34a', // green-600
-                            dark: '#14532d', // green-900
-                            nav: '#0f172a', // slate-900
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Tailwind is precompiled by `npm run build` (see tailwind.config.js); the
+         Play CDN's in-browser compiler is the main source of scroll jank on the
+         projects page, so it must not come back. -->
+    <link rel="stylesheet" href="assets/tailwind.compiled.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/theme.css">
     <link rel="stylesheet" href="assets/hero-effects.css">
@@ -122,7 +109,7 @@
 
                         <div id="timeline" class="relative max-w-4xl mx-auto">
                             <!-- Vertical rail: the green fill is scrubbed to your progress through the sprint -->
-                            <div class="timeline-track hidden md:block" aria-hidden="true">
+                            <div class="timeline-track" aria-hidden="true">
                                 <span class="timeline-progress"></span>
                             </div>
 
@@ -133,14 +120,14 @@
                                     <p class="text-sm font-semibold text-brand mb-2">Weeks 1-3</p>
                                     <p class="sprint-body">Pitch hyper-local "Tech for Good" ideas. "Speed date" to form cross-functional teams of 3-4 based on complementary skills (C++, UI, Research). Validate your problem brief.</p>
                                 </div>
-                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md hidden md:block"></div>
+                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md"></div>
                                 <div class="md:w-1/2 md:pl-12 hidden md:block"></div>
                             </div>
 
                             <!-- Phase 2 -->
                             <div class="relative flex items-center justify-between w-full mb-10">
                                 <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
-                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md hidden md:block"></div>
+                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md"></div>
                                 <div class="sprint-phase md:w-1/2 md:pl-12 w-full text-left">
                                     <h3 class="sprint-heading text-xl font-bold">Phase 2: Wireframing &amp; Tech Stack</h3>
                                     <p class="text-sm font-semibold text-brand mb-2">Weeks 4-7</p>
@@ -155,14 +142,14 @@
                                     <p class="text-sm font-semibold text-brand mb-2">Weeks 8-11</p>
                                     <p class="sprint-body">Develop the Minimum Viable Product (MVP). Focus solely on core features. Swap apps with peers during Bug Crush week to competitive break each other's code.</p>
                                 </div>
-                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md hidden md:block"></div>
+                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md"></div>
                                 <div class="md:w-1/2 md:pl-12 hidden md:block"></div>
                             </div>
 
                             <!-- Phase 4 -->
                             <div class="relative flex items-center justify-between w-full">
                                 <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
-                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md hidden md:block"></div>
+                                <div class="phase-dot absolute w-8 h-8 bg-brand rounded-full border-4 border-white shadow-md"></div>
                                 <div class="sprint-phase md:w-1/2 md:pl-12 w-full text-left">
                                     <h3 class="sprint-heading text-xl font-bold">Phase 4: Polish &amp; Pitch</h3>
                                     <p class="text-sm font-semibold text-brand mb-2">Weeks 12-14</p>
@@ -198,7 +185,7 @@
                     <p class="text-lg text-gray-300 mb-10">Whether you're a coder, designer, or just passionate about the environment, there's a place for you. Join our Discord and start collaborating on off-campus weekend sprints.</p>
                     <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                         <!-- Swap these two placeholders for the real EcoCode accounts -->
-                        <a href="https://discord.gg/ecocode" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center justify-center">
+                        <a href="https://discord.gg/rBKjsqp62f" target="_blank" rel="noopener noreferrer" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center justify-center">
                             <i class="fa-brands fa-discord mr-2 text-xl"></i> Join the Discord
                         </a>
                         <div id="view-repos-glow">
