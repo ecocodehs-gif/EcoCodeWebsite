@@ -157,15 +157,19 @@
                 const PUSH_TO = 1.22;
 
                 // How far the camera travels *down* the timeline. That is the distance the
-                // zoomed stage overflows the viewport, so the descent starts on the heading
+                // zoomed stage overflows the frame, so the descent starts on the heading
                 // and finishes looking at the last phase with the earlier ones passed. The
                 // stage moves the opposite way on screen (up) for the camera to go down.
-                // Flip the sign to send the camera the other way.
+                // Flip the sign to send the camera the other way. Pinned 'top top' aligns
+                // the section's top with the viewport's, so the tightest case is
+                // bottom-alignment: end with the last phase's bottom edge on the viewport
+                // bottom instead of hanging below the fold (happens wherever the stage is
+                // taller than the viewport — phones, short windows — while roomy desktops
+                // still compute 0 and keep the frame static).
                 const travelDown = peak => {
-                    const scaled = stage.offsetHeight * peak;
-                    // How far the zoomed stage hangs out of the frame; negative so the stage
-                    // moves up as the camera goes down. 0 when the frame already shows it all.
-                    return Math.min(0, window.innerHeight - (sprint.offsetHeight + scaled) / 2);
+                    const topPad = parseFloat(gsap.getProperty(sprint, 'paddingTop')) || 0;
+                    // 0 when the frame already shows it all.
+                    return Math.min(0, window.innerHeight - topPad - stage.offsetHeight * peak);
                 };
 
                 // Room the stage has inside its own section before it starts lifting out of
@@ -254,14 +258,18 @@
                 mm.add('(min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () =>
                     build(true, { from: pushStart, peak: () => PUSH_TO, travel: () => travelDown(PUSH_TO) }));
 
-                // Small screens get the same pinned push-in and descent as desktop;
-                // the rail sits along the left edge there (see theme.css) and its
-                // copy never leaves natural scale, so no separate branch is needed.
-                // The query set stays the exact complement of the desktop branch
-                // (matchMedia only fires when at least one condition matches), so
-                // every viewport still lands in exactly one branch.
+                // Phones/tablets: the stage is far taller than the viewport, so the
+                // desktop numbers don't transfer — pushStart shrinks the copy to half
+                // size, and PUSH_TO's 1.22 peak zooms it past the screen edges (clipped
+                // by the section's overflow). Start near natural size and zoom just past
+                // it; the ~3px overflow per side is absorbed by the section padding.
+                // The rail runs down the left edge there (see theme.css) and the camera
+                // descends it as you scroll. The query set stays the exact complement of
+                // the desktop branch (matchMedia only fires when at least one condition
+                // matches), so every viewport still lands in exactly one branch.
+                const MOBILE_PUSH_TO = 1.06;
                 mm.add('(max-width: 1023px) and (prefers-reduced-motion: no-preference), (max-height: 699px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference)', () =>
-                    build(true, { from: pushStart, peak: () => PUSH_TO, travel: () => travelDown(PUSH_TO) }));
+                    build(true, { from: () => 0.85, peak: () => MOBILE_PUSH_TO, travel: () => travelDown(MOBILE_PUSH_TO) }));
             }
 
             /* ---- In-page anchors go through the smoother, closing the nav first ---- */
