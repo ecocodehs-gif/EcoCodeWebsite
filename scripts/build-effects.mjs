@@ -1,6 +1,6 @@
 import { build } from 'esbuild';
 import { createRequire } from 'node:module';
-import { cp, mkdir } from 'node:fs/promises';
+import { cp, mkdir, readdir, stat } from 'node:fs/promises';
 const require = createRequire(import.meta.url);
 
 // Reuse the page's React 18 UMD runtime, including Motion's hooks, rather than
@@ -42,6 +42,23 @@ for (const page of ['index', 'projects']) {
 // at the repository root for local static hosting, then assemble the deploy
 // directory after all generated assets have been written.
 await mkdir('public', { recursive: true });
+// Clean stale reveal frames before copying fresh ones
+import { rm } from 'node:fs/promises';
+const revealDest = 'public/assets/reveal/frames';
+try { await rm(revealDest, { recursive: true, force: true }); } catch(_) {}
+const revealDir = 'assets/reveal';
+const revealEntries = (await readdir(revealDir, { withFileTypes: true }));
+const cpRecursive = async (src, dest) => {
+    const s = await stat(src);
+    if (s.isDirectory()) {
+        await mkdir(dest, { recursive: true });
+        const entries = await readdir(src, { withFileTypes: true });
+        await Promise.all(entries.map(e => cpRecursive(`${src}/${e.name}`, `${dest}/${e.name}`)));
+    } else {
+        await cp(src, dest);
+    }
+};
+const revealPromises = revealEntries.map(e => cpRecursive(`${revealDir}/${e.name}`, `public/assets/reveal/${e.name}`));
 await Promise.all([
   cp('index.html', 'public/index.html'),
   cp('projects.html', 'public/projects.html'),
@@ -52,5 +69,7 @@ await Promise.all([
   cp('assets/hero-effects.js.LEGAL.txt', 'public/assets/hero-effects.js.LEGAL.txt'),
   cp('assets/index-runtime.js', 'public/assets/index-runtime.js'),
   cp('assets/projects-runtime.js', 'public/assets/projects-runtime.js'),
-  cp('assets/eco-logo.svg', 'public/assets/eco-logo.svg')
+   cp('assets/eco-logo.svg', 'public/assets/eco-logo.svg'),
+   cp('assets/eco-logo-pixel.svg', 'public/assets/eco-logo-pixel.svg'),
+   ...revealPromises
 ]);

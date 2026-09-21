@@ -757,7 +757,7 @@
                     openMenuButtonColor="#4ade80"
                     changeMenuColorOnOpen
                     accentColor="#4ade80"
-                    logoUrl="assets/eco-logo.svg"
+                    logoUrl="assets/eco-logo-pixel.svg"
                     onMenuOpen={() => smoother && smoother.paused(true)}
                     onMenuClose={() => smoother && smoother.paused(false)}
                 />

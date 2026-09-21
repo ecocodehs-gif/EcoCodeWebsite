@@ -25,26 +25,26 @@
                 effects: false
             });
 
-            /* ---- Keep fixed navigation readable once it leaves the hero ---- */
-            const updateNavSurface = self => {
-                document.documentElement.classList.toggle('nav-pills', self.progress > 0);
-            };
-            ScrollTrigger.create({
-                trigger: '#top',
-                start: 'bottom 64px',
-                end: 'max',
-                onToggle: updateNavSurface,
-                onRefresh: updateNavSurface
-            });
+             ScrollTrigger.create({
+                 trigger: '#top',
+                 start: 'bottom 64px',
+                 end: 'max',
+                 onToggle: self => {
+                     document.documentElement.classList.toggle('nav-pills', self.progress > 0);
+                 },
+                 onRefresh: self => {
+                     document.documentElement.classList.toggle('nav-pills', self.progress > 0);
+                 }
+             });
 
-            /* ---- Scroll progress bar ---- */
-            if (!reduceMotion) {
-                gsap.to('#scroll-progress', {
-                    scaleX: 1,
-                    ease: 'none',
-                    scrollTrigger: { start: 0, end: 'max', scrub: 0.3 }
-                });
-            }
+/* ---- Scroll progress bar ---- */
+             if (!reduceMotion) {
+                 gsap.to('#scroll-progress', {
+                     scaleX: 1,
+                     ease: 'none',
+                     scrollTrigger: { start: 'top top', end: 'max', scrub: 0.3 }
+                 });
+             }
 
             /* ---- Scroll reveals ----
                IntersectionObserver decides *when*: it needs no layout math, so it
@@ -94,16 +94,160 @@
                 staged.forEach(el => revealObserver.observe(el));
             }
 
-            /* ---- Aurora layers only animate while their section is on screen ---- */
-            if ('IntersectionObserver' in window) {
-                const auroraObserver = new IntersectionObserver(entries => {
-                    entries.forEach(entry => entry.target.classList.toggle('is-paused', !entry.isIntersecting));
-                }, { rootMargin: '150px' });
+             /* ---- Aurora layers only animate while their section is on screen ---- */
+             if ('IntersectionObserver' in window) {
+                 const auroraObserver = new IntersectionObserver(entries => {
+                     entries.forEach(entry => entry.target.classList.toggle('is-paused', !entry.isIntersecting));
+                 }, { rootMargin: '150px' });
 
-                document.querySelectorAll('.aurora-bars').forEach(layer => auroraObserver.observe(layer));
-            }
+                 document.querySelectorAll('.aurora-bars').forEach(layer => auroraObserver.observe(layer));
+             }
 
-            /* ---- Sprint section: scroll-driven zoom, then a fade to dark ----
+             /* ---- Logo reveal: scroll-scrubbed canvas image sequence, pinned hero ----
+                Desktop: hero pins for ~+220% scroll. Preloads 72 WebP frames at q85
+                (2000x2000, ~43KB each, ~3.1MB total) with devicePixelRatio backing
+                store and high-quality imageSmoothing for crisp rendering. drawImage
+                on each scroll tick — no video seeks, no keyframe decode stalls,
+                60fps-equivalent scrub smoothness. Text/CTAs appear at frame 60;
+                menu/logo pill fades in over frames 60-70. Then releases to #about.
+                Mobile/reduced-motion: show poster image immediately, no pin, no canvas. */
+             const revealHero = document.querySelector('.reveal-hero');
+             if (revealHero) {
+                 const canvas = revealHero.querySelector('.reveal-canvas');
+                 const poster = revealHero.querySelector('.reveal-poster');
+                 const content = revealHero.querySelector('.reveal-content');
+                 const scrim = revealHero.querySelector('.reveal-scrim');
+                 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                 const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+                  if (!reduceMotion && !isTouch && canvas) {
+                      const FRAME_COUNT = 72;
+                      const ctx = canvas.getContext('2d');
+                      const frames = new Array(FRAME_COUNT);
+                      let drawnFrame = -1;
+                      let targetFrame = -1;
+                      let rafId = null;
+
+                      // Size canvas backing store to displayed size × devicePixelRatio for crisp rendering
+                      const sizeCanvas = () => {
+                          const rect = canvas.getBoundingClientRect();
+                          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                          const size = Math.max(rect.width, rect.height) * dpr;
+                          const px = Math.min(Math.round(size), 2560);
+                          canvas.width = px;
+                          canvas.height = px;
+                      };
+                      sizeCanvas();
+                      if (typeof ResizeObserver !== 'undefined') {
+                          new ResizeObserver(sizeCanvas).observe(canvas);
+                      }
+                      ctx.imageSmoothingEnabled = true;
+                      ctx.imageSmoothingQuality = 'high';
+
+                      // Load frame 0 first, draw immediately; preload remaining frames in background
+                      const loadFrame0 = () => {
+                          return new Promise(resolve => {
+                              const img = new Image();
+                              img.src = 'assets/reveal/frames/f_001.webp';
+                              img.onload = () => { frames[0] = img; resolve(); };
+                          });
+                      };
+
+                      const preloadRemaining = () => {
+                          const promises = [];
+                          for (let i = 1; i < FRAME_COUNT; i++) {
+                              const idx = String(i + 1).padStart(3, '0');
+                              const img = new Image();
+                              img.src = `assets/reveal/frames/f_${idx}.webp`;
+                              img.decoding = 'async';
+                              const p = img.decode().then(() => { frames[i] = img; }).catch(() => {});
+                              promises.push(p);
+                          }
+                          return Promise.all(promises);
+                      };
+
+                      // Draw frame with cover math (square canvas, any CSS size)
+                      const drawFrame = (idx) => {
+                          if (idx < 0 || idx >= FRAME_COUNT || !frames[idx]) return;
+                          const cw = canvas.width, ch = canvas.height;
+                          const scale = Math.max(cw / ch, 1);
+                          const w = ch * scale;
+                          const x = (cw - w) / 2;
+                          ctx.clearRect(0, 0, cw, ch);
+                          ctx.drawImage(frames[idx], x, 0, w, ch);
+                      };
+
+                      // rAF loop: only redraw when target changes
+                      const scheduleDraw = () => {
+                          if (rafId) return;
+                          rafId = requestAnimationFrame(() => {
+                              rafId = null;
+                              if (targetFrame !== drawnFrame && targetFrame >= 0 && targetFrame < FRAME_COUNT) {
+                                  drawFrame(targetFrame);
+                                  drawnFrame = targetFrame;
+                              }
+                          });
+                      };
+
+                      // Draw frame 0 immediately, preload rest in background
+                      loadFrame0().then(() => {
+                          if (frames[0]) drawFrame(0);
+                          preloadRemaining();
+                          const mm = gsap.matchMedia();
+                          mm.add('(min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
+                              const st = ScrollTrigger.create({
+                                  trigger: '#top',
+                                  start: 'top top',
+                                  end: '+=220%',
+                                  pin: true,
+                                  scrub: 1,
+                                  anticipatePin: 1,
+                                  invalidateOnRefresh: true,
+                                  onUpdate: self => {
+                                      const p = Math.max(0, Math.min(1, self.progress));
+                                      targetFrame = Math.round(p * (FRAME_COUNT - 1));
+                                      scheduleDraw();
+                                      // Frame 60 = 2.5s, text/CTAs appear; frames 60-70 = menu fade window
+                                      const revealed = targetFrame >= 60;
+                                      const navT = revealed ? Math.min((targetFrame - 60) / 10, 1) : 0;
+                                      if (content) {
+                                          content.style.opacity = revealed ? '1' : '0';
+                                          content.style.transform = revealed ? 'translateY(0)' : 'translateY(24px)';
+                                      }
+                                      if (scrim) {
+                                          const scrimOpacity = targetFrame >= 60 ? (targetFrame - 60) / 12 : 0;
+                                          scrim.style.opacity = scrimOpacity;
+                                      }
+                                      // Nav pill/logo fade in over frames 60-70
+                                      document.documentElement.style.setProperty('--nav-reveal', navT);
+                                      document.documentElement.classList.toggle('nav-pills', navT > 0);
+                                      // Scroll progress bar visible during reveal
+                                      const sp = document.getElementById('scroll-progress');
+                                      if (sp) sp.style.opacity = navT > 0 ? navT : '1';
+                                      revealHero.classList.toggle('is-revealed', revealed);
+                                  }
+                              });
+                              if (document.fonts && document.fonts.ready) {
+                                  document.fonts.ready.then(() => ScrollTrigger.refresh());
+                              }
+                          });
+                          mm.add('(prefers-reduced-motion: reduce)', () => {});
+                          mm.add('(pointer: coarse)', () => {});
+                      });
+                  } else {
+                      // Mobile / reduced-motion: hide canvas, show poster, show content
+                      if (canvas) canvas.style.display = 'none';
+                      if (poster) poster.style.display = 'block';
+                      if (content) { content.style.opacity = '1'; content.style.transform = 'none'; }
+                      if (scrim) scrim.style.opacity = '1';
+                      document.documentElement.classList.add('nav-pills');
+                      const sp = document.getElementById('scroll-progress');
+                      if (sp) sp.style.opacity = '1';
+                      revealHero.classList.add('is-revealed');
+                  }
+             }
+
+/* ---- Sprint section: scroll-driven zoom, then a fade to dark ----
                The timeline starts small and pushes in to its natural size, then the backdrop
                fades to dark while the rail fills and each phase lights up in turn.
 
@@ -805,7 +949,7 @@
                     openMenuButtonColor="#4ade80"
                     changeMenuColorOnOpen
                     accentColor="#4ade80"
-                    logoUrl="assets/eco-logo.svg"
+                    logoUrl="assets/eco-logo-pixel.svg"
                     onMenuOpen={() => smoother && smoother.paused(true)}
                     onMenuClose={() => smoother && smoother.paused(false)}
                 />

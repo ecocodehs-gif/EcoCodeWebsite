@@ -6,6 +6,9 @@ module.exports = {
     content: ['./index.html', './projects.html', './assets/**/*.jsx', './assets/**/*.js', './scripts/**/*.mjs'],
     theme: {
         extend: {
+            fontFamily: {
+                serif: ['"Instrument Serif"', 'serif'],
+            },
             colors: {
                 brand: {
                     light: '#4ade80', // green-400
