@@ -8,6 +8,16 @@ module.exports = {
         extend: {
             fontFamily: {
                 serif: ['"Instrument Serif"', 'serif'],
+                // Everything that isn't display/serif text. Instrument Sans' 
+                // variable weight axis stops at 700, so `font-extrabold` 
+                // clamps to a real 700 (see assets/theme.css).
+                sans: [
+                    '"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif',
+                    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+                ],
+                // Hero headline face. Outfit's variable weight axis runs
+                // 100–900, so every weight up to 900 is real, not synthesized.
+                display: ['"Outfit"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
             },
             colors: {
                 brand: {

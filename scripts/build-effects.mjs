@@ -10,21 +10,33 @@ const globals = {
   'react-dom': { global: 'ReactDOM', exports: Object.keys(require('react-dom')) },
   'react-dom/client': { global: 'ReactDOM', exports: ['createRoot', 'hydrateRoot'] }
 };
+const existingReactRuntime = {
+  name: 'existing-react-runtime',
+  setup(build) {
+    build.onResolve({ filter: /^(react|react-dom|react-dom\/client)$/ }, args => ({ path: args.path, namespace: 'page-global' }));
+    build.onLoad({ filter: /.*/, namespace: 'page-global' }, args => {
+      const runtime = globals[args.path];
+      return { contents: `const runtime = window.${runtime.global}; export default runtime; export const { ${runtime.exports.join(', ')} } = runtime;`, loader: 'js' };
+    });
+  }
+};
+
 await build({
   entryPoints: ['assets/components/hero-effects.jsx'],
   bundle: true, minify: true, format: 'iife', target: ['es2020'],
   outfile: 'assets/hero-effects.js', legalComments: 'linked',
   define: { 'process.env.NODE_ENV': '"production"' },
-  plugins: [{
-    name: 'existing-react-runtime',
-    setup(build) {
-      build.onResolve({ filter: /^(react|react-dom|react-dom\/client)$/ }, args => ({ path: args.path, namespace: 'page-global' }));
-      build.onLoad({ filter: /.*/, namespace: 'page-global' }, args => {
-        const runtime = globals[args.path];
-        return { contents: `const runtime = window.${runtime.global}; export default runtime; export const { ${runtime.exports.join(', ')} } = runtime;`, loader: 'js' };
-      });
-    }
-  }]
+  plugins: [existingReactRuntime]
+});
+
+// GradientWaves island, bundled separately: projects.html needs the hero waves
+// but not the headline/BorderGlow islands or their motion dependency.
+await build({
+  entryPoints: ['assets/components/hero-waves.jsx'],
+  bundle: true, minify: true, format: 'iife', target: ['es2020'],
+  outfile: 'assets/hero-waves.js', legalComments: 'linked',
+  define: { 'process.env.NODE_ENV': '"production"' },
+  plugins: [existingReactRuntime]
 });
 
 // Compile the former inline Babel scripts ahead of time. Static hosts serve JS
@@ -63,10 +75,15 @@ await Promise.all([
   cp('index.html', 'public/index.html'),
   cp('projects.html', 'public/projects.html'),
   cp('assets/theme.css', 'public/assets/theme.css'),
+  // theme.css points at these files with stylesheet-relative url() values.
+  cp('assets/Outfit-VariableFont_wght.ttf', 'public/assets/Outfit-VariableFont_wght.ttf'),
+  cp('assets/InstrumentSans-VariableFont_wdth,wght.ttf', 'public/assets/InstrumentSans-VariableFont_wdth,wght.ttf'),
   cp('assets/tailwind.compiled.css', 'public/assets/tailwind.compiled.css'),
   cp('assets/hero-effects.css', 'public/assets/hero-effects.css'),
   cp('assets/hero-effects.js', 'public/assets/hero-effects.js'),
   cp('assets/hero-effects.js.LEGAL.txt', 'public/assets/hero-effects.js.LEGAL.txt'),
+  cp('assets/hero-waves.css', 'public/assets/hero-waves.css'),
+  cp('assets/hero-waves.js', 'public/assets/hero-waves.js'),
   cp('assets/index-runtime.js', 'public/assets/index-runtime.js'),
   cp('assets/projects-runtime.js', 'public/assets/projects-runtime.js'),
    cp('assets/eco-logo.svg', 'public/assets/eco-logo.svg'),

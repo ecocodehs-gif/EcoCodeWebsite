@@ -6,6 +6,12 @@
            renders without the motion.
            ================================================================= */
         (function () {
+            // The nav island stays at opacity 0 until something shows it (see
+            // #site-nav in theme.css). Only the home hero's reveal drives that,
+            // so this page opts in up front — set before the gsap guard so a
+            // missing gsap can't leave the logo and menu button invisible.
+            document.documentElement.classList.add('nav-visible');
+
             const gsap = window.gsap;
             if (!gsap) return;
 

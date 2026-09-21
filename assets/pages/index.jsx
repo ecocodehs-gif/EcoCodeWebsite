@@ -214,10 +214,11 @@
                                           content.style.opacity = revealed ? '1' : '0';
                                           content.style.transform = revealed ? 'translateY(0)' : 'translateY(24px)';
                                       }
-                                      if (scrim) {
-                                          const scrimOpacity = targetFrame >= 60 ? (targetFrame - 60) / 12 : 0;
-                                          scrim.style.opacity = scrimOpacity;
-                                      }
+                                      const scrimOpacity = targetFrame >= 60 ? (targetFrame - 60) / 12 : 0;
+                                      if (scrim) scrim.style.opacity = scrimOpacity;
+                                      // GradientWaves backdrop fades in on the same beat as the scrim,
+                                      // so it only takes over once the planet sequence has finished.
+                                      document.documentElement.style.setProperty('--hero-waves-opacity', String(scrimOpacity));
                                       // Nav pill/logo fade in over frames 60-70
                                       document.documentElement.style.setProperty('--nav-reveal', navT);
                                       document.documentElement.classList.toggle('nav-pills', navT > 0);
@@ -240,6 +241,8 @@
                       if (poster) poster.style.display = 'block';
                       if (content) { content.style.opacity = '1'; content.style.transform = 'none'; }
                       if (scrim) scrim.style.opacity = '1';
+                      // No reveal to wait for, so the waves layer starts fully in.
+                      document.documentElement.style.setProperty('--hero-waves-opacity', '1');
                       document.documentElement.classList.add('nav-pills');
                       const sp = document.getElementById('scroll-progress');
                       if (sp) sp.style.opacity = '1';

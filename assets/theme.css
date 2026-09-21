@@ -21,6 +21,26 @@
     font-display: swap;
 }
 
+/* Instrument Sans — the site's UI/body face, behind Tailwind's `sans` stack.
+   Self-hosted variable file (wght 400–700) next to this stylesheet. */
+@font-face {
+    font-family: 'Instrument Sans';
+    src: url('InstrumentSans-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Outfit — the hero headline face. Self-hosted variable file (wght 100–900)
+   next to this stylesheet so the headline needs no third-party request. */
+@font-face {
+    font-family: 'Outfit';
+    src: url('Outfit-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* ---------- Smooth scrolling (GSAP ScrollSmoother) ---------- */
 /* ScrollSmoother drives scrolling itself, so native smooth scrolling must be off. */
 html { scroll-behavior: auto; }
@@ -42,10 +62,33 @@ html { scroll-behavior: auto; }
 }
 html.nav-pills .scroll-progress { opacity: 1; }
 
-/* ---------- Hero pattern ---------- */
+/* ---------- Hero backdrop ---------- */
 .hero-pattern {
     background-color: #0f172a;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2316a34a' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ---------- GradientWaves hero backdrop (assets/hero-waves.js) ----------
+   The projects hero shows it straight away; the main hero gates it behind the
+   planet reveal (index-runtime.js drives --hero-waves-opacity), so the image
+   sequence still plays first and the waves take over once the text is up. */
+.hero-waves {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    /* The layer never swallows clicks. */
+    pointer-events: none;
+}
+/* Only the canvas takes pointer events — that's what drives GradientWaves'
+   cursor parallax. Hero copy and CTAs sit above it in the stack, so they stay
+   clickable. */
+.hero-waves canvas {
+    pointer-events: auto;
+}
+.reveal-hero .hero-waves {
+    /* Above the frames and the scrim (both z-index 1, earlier in the DOM), */
+    /* below .reveal-content (z-index 2) and the scroll indicator (z-index 3). */
+    z-index: 1;
+    opacity: var(--hero-waves-opacity, 0);
 }
 
 .hero-scroll-indicator {
@@ -794,6 +837,10 @@ img, video { max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) {
     .sm-logo-link, .sm-toggle { transition: none; }
 }
-/* Hide nav island until logo reveal passes 3s (72nd frame) */
+/* Hidden until the page shows it. The home page fades it in with its hero
+   reveal (--nav-reveal, driven by index-runtime.js); a page with no such reveal
+   marks the root with .nav-visible up front instead, so its logo and menu
+   button are both visible and clickable over the hero. */
 #site-nav { opacity: var(--nav-reveal, 0); transition: opacity 0.3s ease; pointer-events: none; }
-html.nav-pills #site-nav { opacity: 1; pointer-events: auto; }
+html.nav-pills #site-nav,
+html.nav-visible #site-nav { opacity: 1; pointer-events: auto; }

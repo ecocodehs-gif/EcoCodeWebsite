@@ -51,9 +51,9 @@ const headline = document.getElementById('hero-headline');
 if (headline) {
   flushSync(() => createRoot(headline).render(
     <>
-      <BlurText text="Code for Community." delay={120} direction="top" />
+      <BlurText text="Code for Community." delay={120} direction="top" className="font-display font-bold" />
       <br />
-      <BlurText text="Build for the Planet." delay={120} direction="top" startDelay={0.3} className="text-brand-light" />
+      <BlurText text="Build for the Planet." delay={120} direction="top" startDelay={0.3} className="text-brand-light font-serif font-normal" />
     </>
   ));
 }

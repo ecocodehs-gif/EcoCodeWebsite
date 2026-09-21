@@ -12,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/theme.css">
     <link rel="stylesheet" href="assets/hero-effects.css">
+    <link rel="stylesheet" href="assets/hero-waves.css">
 
     <!-- Animation + component runtime (gsap matches the version in package.json).
          defer keeps them from blocking the first paint; order is still guaranteed. -->
@@ -21,6 +22,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
     <script defer src="assets/hero-effects.js"></script>
+    <script defer src="assets/hero-waves.js"></script>
     <script defer src="assets/index-runtime.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased">
@@ -37,6 +39,8 @@
                 <canvas class="reveal-canvas" width="2000" height="2000" aria-hidden="true"></canvas>
                 <img class="reveal-poster" src="assets/reveal/ecocode-reveal-poster.jpg" alt="" aria-hidden="true">
                 <div class="reveal-scrim" aria-hidden="true"></div>
+                <!-- GradientWaves backdrop; fades in as the reveal completes (see .reveal-hero .hero-waves) -->
+                <div class="hero-waves" data-gradient-waves aria-hidden="true"></div>
                 <div class="reveal-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10" data-speed="0.92">
                     <h1 id="hero-headline" class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
                         Code for Community.<br>

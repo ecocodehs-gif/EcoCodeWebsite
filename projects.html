@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="assets/tailwind.compiled.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/theme.css">
+    <link rel="stylesheet" href="assets/hero-waves.css">
 
     <!-- Animation + component runtime (gsap matches the version in package.json).
          defer keeps them from blocking the first paint; order is still guaranteed. -->
@@ -19,6 +20,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollSmoother.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script defer src="assets/hero-waves.js"></script>
     <script defer src="assets/projects-runtime.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased">
@@ -32,16 +34,8 @@
 
             <!-- Hero Section -->
             <header id="top" class="hero-pattern relative overflow-hidden text-white pt-32 pb-20 md:pt-40 md:pb-28">
-                <div class="aurora-bars" aria-hidden="true">
-                    <span class="aurora-bar" style="--i: 0"></span>
-                    <span class="aurora-bar" style="--i: 1"></span>
-                    <span class="aurora-bar" style="--i: 2"></span>
-                    <span class="aurora-bar" style="--i: 3"></span>
-                    <span class="aurora-bar" style="--i: 4"></span>
-                    <span class="aurora-bar" style="--i: 5"></span>
-                    <span class="aurora-bar" style="--i: 6"></span>
-                    <span class="aurora-bar" style="--i: 7"></span>
-                </div>
+                <!-- GradientWaves backdrop -->
+                <div class="hero-waves" data-gradient-waves aria-hidden="true"></div>
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10" data-speed="0.92">
                     <a href="index.html" class="inline-flex items-center text-brand-light hover:text-white font-semibold transition mb-6">
                         <i class="fa-solid fa-arrow-left mr-2"></i> Back to the incubator
