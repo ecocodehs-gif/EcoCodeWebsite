@@ -104,24 +104,40 @@
              }
 
              /* ---- Logo reveal: scroll-scrubbed canvas image sequence, pinned hero ----
-                Desktop: hero pins for ~+220% scroll. Preloads 72 WebP frames at q85
+                Desktop: hero pins for ~+300% scroll. The frame sequence scrubs over the
+                first ~220% of that; the rest is the hand-off, where the wave panel
+                (waves + copy) scrolls up over the planet, which holds its place as the
+                backdrop behind it — a movement rather than a crossfade. The copy and the
+                nav travel with that sheet, so they arrive by scrolling rather than by
+                fading. Preloads 72 WebP frames at q85
                 (2000x2000, ~43KB each, ~3.1MB total) with devicePixelRatio backing
                 store and high-quality imageSmoothing for crisp rendering. drawImage
                 on each scroll tick — no video seeks, no keyframe decode stalls,
-                60fps-equivalent scrub smoothness. Text/CTAs appear at frame 60;
-                menu/logo pill fades in over frames 60-70. Then releases to #about.
+                60fps-equivalent scrub smoothness. The copy is switched on at frame 60,
+                while it is still below the fold, so it rides in unseen; the nav is a
+                fixed layer outside the hero and is given the same travel through
+                --nav-wipe on the root. Then releases to #about.
                 Mobile/reduced-motion: show poster image immediately, no pin, no canvas. */
              const revealHero = document.querySelector('.reveal-hero');
              if (revealHero) {
                  const canvas = revealHero.querySelector('.reveal-canvas');
                  const poster = revealHero.querySelector('.reveal-poster');
-                 const content = revealHero.querySelector('.reveal-content');
-                 const scrim = revealHero.querySelector('.reveal-scrim');
-                 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                 const isTouch = window.matchMedia('(pointer: coarse)').matches;
+                 // One query, stated in two places: this is exactly the condition the
+                 // pin below runs under, and the complement of the --hero-wipe rule in
+                 // theme.css. Keying only off pointer/reduced-motion left fine-pointer
+                 // windows narrower than 1024px falling through the middle — the frames
+                 // drew but the pin never ran, so they got a frozen planet and no copy
+                 // at all. Anything outside the query now gets the settled hero at once.
+                 const revealRuns = window.matchMedia('(min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
 
-                  if (!reduceMotion && !isTouch && canvas) {
+                  if (revealRuns && canvas) {
                       const FRAME_COUNT = 72;
+                      // The pin runs in two acts. The frame sequence scrubs over REVEAL_END
+                      // worth of scroll; the remaining distance is the hand-off, which
+                      // scrolls the wave panel up over the planet. Both acts are movement —
+                      // nothing is cross-faded.
+                      const REVEAL_END = 220;
+                      const HOLD_END = 300;
                       const ctx = canvas.getContext('2d');
                       const frames = new Array(FRAME_COUNT);
                       let drawnFrame = -1;
@@ -195,32 +211,42 @@
                           preloadRemaining();
                           const mm = gsap.matchMedia();
                           mm.add('(min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
+                              // Park the panel below the fold until the scroll says otherwise;
+                              // the CSS alone would leave it in place until the first update.
+                              revealHero.style.setProperty('--hero-wipe', '0');
                               const st = ScrollTrigger.create({
                                   trigger: '#top',
                                   start: 'top top',
-                                  end: '+=220%',
+                                  end: `+=${HOLD_END}%`,
                                   pin: true,
                                   scrub: 1,
                                   anticipatePin: 1,
                                   invalidateOnRefresh: true,
                                   onUpdate: self => {
-                                      const p = Math.max(0, Math.min(1, self.progress));
+                                      const q = Math.max(0, Math.min(1, self.progress));
+                                      // Act one: the frame sequence, scrubbing over the first
+                                      // REVEAL_END of the pin.
+                                      const p = Math.min(1, (q * HOLD_END) / REVEAL_END);
                                       targetFrame = Math.round(p * (FRAME_COUNT - 1));
                                       scheduleDraw();
-                                      // Frame 60 = 2.5s, text/CTAs appear; frames 60-70 = menu fade window
+                                      // Frame 60 = 2.5s: the copy is ready to be brought on, so the
+                                      // hand-off starts there and runs to the end of the pin.
                                       const revealed = targetFrame >= 60;
                                       const navT = revealed ? Math.min((targetFrame - 60) / 10, 1) : 0;
-                                      if (content) {
-                                          content.style.opacity = revealed ? '1' : '0';
-                                          content.style.transform = revealed ? 'translateY(0)' : 'translateY(24px)';
-                                      }
-                                      const scrimOpacity = targetFrame >= 60 ? (targetFrame - 60) / 12 : 0;
-                                      if (scrim) scrim.style.opacity = scrimOpacity;
-                                      // GradientWaves backdrop fades in on the same beat as the scrim,
-                                      // so it only takes over once the planet sequence has finished.
-                                      document.documentElement.style.setProperty('--hero-waves-opacity', String(scrimOpacity));
-                                      // Nav pill/logo fade in over frames 60-70
-                                      document.documentElement.style.setProperty('--nav-reveal', navT);
+                                      // Act two: the hand-off. The panel (waves + copy) scrolls
+                                      // up and over the planet, which stays put as the backdrop
+                                      // — see .reveal-panel in theme.css. Movement rather than a
+                                      // fade, so no frame is ever left showing through a
+                                      // half-transparent layer.
+                                      const wipeStart = (60 / (FRAME_COUNT - 1)) * (REVEAL_END / HOLD_END);
+                                      const wipe = Math.max(0, Math.min(1, (q - wipeStart) / (1 - wipeStart)));
+                                      revealHero.style.setProperty('--hero-wipe', String(wipe));
+                                      // The nav rides the same sheet as the copy. It lives outside
+                                      // the hero, so it cannot inherit --hero-wipe; the same value
+                                      // is published to the root for it instead. nav-pills brings
+                                      // it on at frame 60, which is the start of the wipe, so it is
+                                      // already showing (and off screen) before it starts climbing.
+                                      document.documentElement.style.setProperty('--nav-wipe', String(wipe));
                                       document.documentElement.classList.toggle('nav-pills', navT > 0);
                                       // Scroll progress bar visible during reveal
                                       const sp = document.getElementById('scroll-progress');
@@ -236,13 +262,12 @@
                           mm.add('(pointer: coarse)', () => {});
                       });
                   } else {
-                      // Mobile / reduced-motion: hide canvas, show poster, show content
+                      // Narrow / touch / reduced-motion: hide canvas, show poster, show content
                       if (canvas) canvas.style.display = 'none';
                       if (poster) poster.style.display = 'block';
-                      if (content) { content.style.opacity = '1'; content.style.transform = 'none'; }
-                      if (scrim) scrim.style.opacity = '1';
-                      // No reveal to wait for, so the waves layer starts fully in.
-                      document.documentElement.style.setProperty('--hero-waves-opacity', '1');
+                      // State the settled hero on the element too, so a later resize into
+                      // this case can't leave the panel parked below the fold.
+                      revealHero.style.setProperty('--hero-wipe', '1');
                       document.documentElement.classList.add('nav-pills');
                       const sp = document.getElementById('scroll-progress');
                       if (sp) sp.style.opacity = '1';
@@ -925,8 +950,6 @@
 
             const menuItems = [
                 { label: 'Home', ariaLabel: 'Back to the top', link: '#top' },
-                { label: 'About', ariaLabel: 'Learn about EcoCode', link: '#about' },
-                { label: 'The Sprint', ariaLabel: 'See the 14-week sprint', link: '#sprint' },
                 { label: 'Projects', ariaLabel: 'View our target projects', link: 'projects.html' },
                 { label: 'Pitch an Idea', ariaLabel: 'Pitch your project idea', link: PITCH_FORM }
             ];

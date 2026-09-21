@@ -736,8 +736,6 @@
 
             const menuItems = [
                 { label: 'Home', ariaLabel: 'Back to the home page', link: 'index.html' },
-                { label: 'About', ariaLabel: 'Learn about EcoCode', link: 'index.html#about' },
-                { label: 'The Sprint', ariaLabel: 'See the 14-week sprint', link: 'index.html#sprint' },
                 { label: 'Projects', ariaLabel: 'View our target projects', link: 'projects.html' },
                 { label: 'Pitch an Idea', ariaLabel: 'Pitch your project idea', link: PITCH_FORM }
             ];

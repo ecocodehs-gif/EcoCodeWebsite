@@ -58,10 +58,10 @@ if (hosts.length) {
 
   if (!reduceMotion && hasWebGL2) {
     hosts.forEach(host => {
-      // The main hero keeps the waves hidden until its planet sequence finishes
-      // (index-runtime.js sets .is-revealed at the same time it starts the
-      // fade-in). Waiting for that flag means no WebGL context and no raymarch
-      // loop spins up behind a layer nobody can see yet.
+      // The main hero keeps the waves off screen until its planet sequence finishes
+      // (they sit in .reveal-panel, which index-runtime.js keeps parked below the
+      // fold until the wipe starts). Waiting for .is-revealed means no WebGL context
+      // and no raymarch loop spins up behind a layer nobody can see yet.
       const gated = host.closest('.reveal-hero');
       if (gated && !gated.classList.contains('is-revealed')) {
         const observer = new MutationObserver(() => {

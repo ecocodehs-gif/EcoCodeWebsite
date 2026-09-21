@@ -39,25 +39,30 @@
                 <canvas class="reveal-canvas" width="2000" height="2000" aria-hidden="true"></canvas>
                 <img class="reveal-poster" src="assets/reveal/ecocode-reveal-poster.jpg" alt="" aria-hidden="true">
                 <div class="reveal-scrim" aria-hidden="true"></div>
-                <!-- GradientWaves backdrop; fades in as the reveal completes (see .reveal-hero .hero-waves) -->
-                <div class="hero-waves" data-gradient-waves aria-hidden="true"></div>
-                <div class="reveal-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10" data-speed="0.92">
-                    <h1 id="hero-headline" class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-                        Code for Community.<br>
-                        <span class="text-brand-light font-serif">Build for the Planet.</span>
-                    </h1>
-                    <p class="mt-4 text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10">
-                        A student-led, zero-cost technology incubator where youth design, code, and deploy software solutions to real-world challenges.
-                    </p>
-                    <div class="hero-actions flex flex-col sm:flex-row justify-center gap-4">
-                        <div id="start-building-glow"><a href="#join" class="bg-brand hover:bg-brand-light text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:-translate-y-1">Start Building</a></div>
-                        <a href="#about" class="bg-transparent border-2 border-gray-400 hover:border-white text-white font-bold py-3 px-8 rounded-lg transition">Learn More</a>
+                <!-- The wave backdrop and the hero copy ride on one panel: once the planet
+                     sequence is done it scrolls up over the planet, which stays put as the
+                     backdrop behind it (see .reveal-panel / --hero-wipe in theme.css). -->
+                <div class="reveal-panel">
+                    <div class="hero-waves" data-gradient-waves aria-hidden="true"></div>
+                    <div class="reveal-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10" data-speed="0.92">
+                        <h1 id="hero-headline" class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+                            Code for Community.<br>
+                            <span class="text-brand-light font-serif">Build for the Planet.</span>
+                        </h1>
+                        <p class="mt-4 text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10">
+                            A student-led, zero-cost technology incubator where youth design, code, and deploy software solutions to real-world challenges.
+                        </p>
+                        <div class="hero-actions flex flex-col sm:flex-row justify-center gap-4">
+                            <div id="start-building-glow"><a href="#join" class="bg-brand hover:bg-brand-light text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:-translate-y-1">Start Building</a></div>
+                            <a href="#about" class="bg-transparent border-2 border-gray-400 hover:border-white text-white font-bold py-3 px-8 rounded-lg transition">Learn More</a>
+                        </div>
                     </div>
-                </div>
 
-                <a class="hero-scroll-indicator" href="#about" aria-label="Scroll to learn more">
-                    <span aria-hidden="true"></span>
-                </a>
+                    <!-- Rides in with the panel: it belongs to the settled hero, not the planet. -->
+                    <a class="hero-scroll-indicator" href="#about" aria-label="Scroll to learn more">
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
             </header>
 
             <!-- Core Mission & Values -->

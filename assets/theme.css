@@ -68,9 +68,8 @@ html.nav-pills .scroll-progress { opacity: 1; }
 }
 
 /* ---------- GradientWaves hero backdrop (assets/hero-waves.js) ----------
-   The projects hero shows it straight away; the main hero gates it behind the
-   planet reveal (index-runtime.js drives --hero-waves-opacity), so the image
-   sequence still plays first and the waves take over once the text is up. */
+   The projects hero shows it straight away; on the main hero it sits inside
+   .reveal-panel, the layer that scrolls up from below the planet sequence. */
 .hero-waves {
     position: absolute;
     inset: 0;
@@ -85,10 +84,8 @@ html.nav-pills .scroll-progress { opacity: 1; }
     pointer-events: auto;
 }
 .reveal-hero .hero-waves {
-    /* Above the frames and the scrim (both z-index 1, earlier in the DOM), */
-    /* below .reveal-content (z-index 2) and the scroll indicator (z-index 3). */
+    /* Inside .reveal-panel: under the copy (z-index 2), over the panel itself. */
     z-index: 1;
-    opacity: var(--hero-waves-opacity, 0);
 }
 
 .hero-scroll-indicator {
@@ -640,6 +637,12 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     overflow: hidden;
     display: flex;
     align-items: center;
+    /* How far the hand-off to the waves has travelled: 0 = the planet sequence is
+       on screen with the wave panel parked below the fold, 1 = the panel has
+       scrolled up into place. Driven by the reveal scrub in index-runtime.js; the
+       resting value here is the settled hero that touch and reduced-motion
+       visitors get with none of that running. */
+    --hero-wipe: 0;
 }
 .reveal-video,
 .reveal-canvas {
@@ -653,6 +656,11 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
 .reveal-canvas {
     /* Canvas draws frames via JS; size from width/height attrs + CSS cover */
     image-rendering: auto;
+    /* Above the scrim (else the opaque scrim would hide the frames), below
+       .reveal-panel, which is the sheet that slides up over them. */
+    z-index: 2;
+    /* The planet holds its place: it is the backdrop the wave panel scrolls over,
+       not a second panel in a stack. Its frames keep animating underneath. */
 }
 .reveal-poster {
     display: none;
@@ -668,22 +676,37 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     inset: 0;
     z-index: 1;
     background: #0f172a;
-    opacity: 0;
+    /* Always opaque: the bed the waves' own transparency sits on, once the panel
+       has scrolled up over it. */
+    opacity: 1;
     pointer-events: none;
-    transition: opacity 0.6s ease;
+}
+/* Wave backdrop + hero copy, as one sheet. After the planet sequence this sheet
+   scrolls up from below the fold and over the planet, which stays put as the
+   background behind it — a movement rather than a crossfade. It is opaque so it
+   covers the planet cleanly: nothing of the image is left showing through the
+   waves' own transparency. */
+.reveal-panel {
+    position: absolute;
+    inset: 0;
+    /* Above the planet frames — the sheet slides over them. */
+    z-index: 3;
+    /* The navy the waves render against, carried by the sheet itself so it never
+       lets the planet show through underneath. */
+    background: #0f172a;
+    /* Same centring the hero itself used to give the copy. */
+    display: flex;
+    align-items: center;
+    transform: translate3d(0, calc((1 - var(--hero-wipe, 0)) * 100%), 0);
 }
 .reveal-content {
     position: relative;
     z-index: 2;
+    /* Switched on with the wipe (see .is-revealed) and never faded — the panel
+       moving is what brings it on screen. */
     opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
 }
 .reveal-hero.is-revealed .reveal-content {
-    opacity: 1;
-    transform: translateY(0);
-}
-.reveal-hero.is-revealed .reveal-scrim {
     opacity: 1;
 }
 /* Keep the scroll indicator visible above the video */
@@ -698,14 +721,17 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     .hero-scroll-indicator span { animation: none; }
     .reveal-video { display: none; }
     .reveal-poster { display: block; }
-    .reveal-content { opacity: 1; transform: none; transition: none; }
-    .reveal-scrim { opacity: 1; transition: none; }
 }
 @media (pointer: coarse) {
     .reveal-video { display: none; }
     .reveal-poster { display: block; }
-    .reveal-content { opacity: 1; transform: none; transition: none; }
-    .reveal-scrim { opacity: 1; transition: none; }
+}
+/* Everywhere the reveal does not run — the exact complement of the query used in
+   index-runtime.js — the hero starts settled: wave panel in place, copy showing,
+   nothing parked below the fold waiting for a scroll that will never drive it. */
+@media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+    .reveal-hero { --hero-wipe: 1; }
+    .reveal-content { opacity: 1; }
 }
 
 /* ---------- Responsive layouts and touch navigation ---------- */
@@ -837,10 +863,22 @@ img, video { max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) {
     .sm-logo-link, .sm-toggle { transition: none; }
 }
-/* Hidden until the page shows it. The home page fades it in with its hero
-   reveal (--nav-reveal, driven by index-runtime.js); a page with no such reveal
-   marks the root with .nav-visible up front instead, so its logo and menu
-   button are both visible and clickable over the hero. */
-#site-nav { opacity: var(--nav-reveal, 0); transition: opacity 0.3s ease; pointer-events: none; }
+/* Hidden until the page shows it. The home page brings it on with its hero
+   hand-off — the logo and menu button ride the same sheet as the copy, see
+   --nav-wipe below — while a page with no such reveal marks the root with
+   .nav-visible up front, so its logo and menu button are visible and clickable
+   over the hero. No opacity transition: the motion is what brings it in. */
+#site-nav { opacity: 0; pointer-events: none; }
 html.nav-pills #site-nav,
 html.nav-visible #site-nav { opacity: 1; pointer-events: auto; }
+
+/* The menu rides in attached to the hero sheet. index-runtime.js publishes the
+   hero's wipe progress as --nav-wipe (the nav sits outside the hero, so it
+   cannot inherit --hero-wipe), and the header travels up exactly as far as the
+   panel does: a whole viewport. Unset — every other page, and any visitor the
+   reveal does not run for — resolves to the settled value, i.e. in place.
+   Only the header moves: the drawer keeps its own position, so it still opens
+   into the viewport wherever the header has got to. */
+.staggered-menu-header {
+    transform: translate3d(0, calc((1 - var(--nav-wipe, 1)) * 100vh), 0);
+}
