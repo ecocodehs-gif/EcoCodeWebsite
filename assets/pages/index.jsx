@@ -110,8 +110,10 @@
                 backdrop behind it — a movement rather than a crossfade. The copy and the
                 nav travel with that sheet, so they arrive by scrolling rather than by
                 fading. Preloads 72 WebP frames at q85
-                (1280x720, ~68KB each, ~4.9MB total) with devicePixelRatio backing
-                store and high-quality imageSmoothing for crisp rendering. drawImage
+                (1280x720, ~69KB each, ~4.9MB total) with a devicePixelRatio backing
+                store drawn without imageSmoothing, so the pixel art stays square at
+                the cover scale the hero box asks for — the zoom the static frame
+                underneath it is drawn at. drawImage
                 on each scroll tick — no video seeks, no keyframe decode stalls,
                 60fps-equivalent scrub smoothness. The copy is switched on as the
                 hand-off starts, while it is still below the fold, so it rides in
@@ -157,21 +159,37 @@
                       let targetFrame = -1;
                       let rafId = null;
 
-                      // Size canvas backing store to displayed size × devicePixelRatio for crisp rendering
+                      // Size the backing store to the element's own box × devicePixelRatio, capped
+                      // so the longest side stays at 2560. Matching the box's aspect is what holds
+                      // the frames at the same zoom as the static frame behind them: drawFrame
+                      // cover-fits each frame into this canvas, and this used to be square, so a
+                      // 1280x720 frame was drawn to fill the square's height (2.0x on a 1440x900
+                      // hero) and object-fit then cropped that again — the sequence opened about
+                      // 1.6x closer than the frame the poster underneath was showing.
                       const sizeCanvas = () => {
                           const rect = canvas.getBoundingClientRect();
                           const dpr = Math.min(window.devicePixelRatio || 1, 2);
-                          const size = Math.max(rect.width, rect.height) * dpr;
-                          const px = Math.min(Math.round(size), 2560);
-                          canvas.width = px;
-                          canvas.height = px;
+                          const scale = Math.min(dpr, 2560 / Math.max(rect.width, rect.height, 1));
+                          canvas.width = Math.max(1, Math.round(rect.width * scale));
+                          canvas.height = Math.max(1, Math.round(rect.height * scale));
+                          // The frames are pixel art cut at 1280x720 and land here at the
+                          // hero box's cover scale — about 1.25x on a 1440x900 hero at
+                          // devicePixelRatio 1. Smoothing that upscale would smear the
+                          // dither into video grain; nearest neighbour keeps the pixels
+                          // square, which is the look of the sequence. Set here, not once
+                          // at setup: assigning width/height resets the context state, and
+                          // this runs again from the ResizeObserver's initial callback and
+                          // on every resize.
+                          ctx.imageSmoothingEnabled = false;
                       };
                       sizeCanvas();
                       if (typeof ResizeObserver !== 'undefined') {
                           new ResizeObserver(sizeCanvas).observe(canvas);
                       }
-                      ctx.imageSmoothingEnabled = true;
-                      ctx.imageSmoothingQuality = 'high';
+                      // The frames are pixel art cut at 1280x720 and the backing store is up
+                      // to 2560 square, so each frame lands at roughly 2x. Smoothing that
+                      // upscale would smear the dither into video grain; nearest neighbour
+                      // keeps the pixels square, which is the whole look of the sequence.
 
                       // Load frame 0 first, draw immediately; preload remaining frames in background
                       const loadFrame0 = () => {
@@ -292,6 +310,26 @@
                       revealHero.classList.add('is-revealed');
                   }
              }
+
+/* ---- Opening-frame prompt --------------------------------------------
+               The scroll hint belongs to the frame the visitor lands on, so the first
+               scroll of any kind dismisses it — wheel, key, scrollbar drag. It is keyed
+               to real scroll rather than to the reveal's progress: that scrub only
+               starts moving the panel at the hand-off, so a hint tied to it would sit
+               there for the whole growth. A page that loads already scrolled (a refresh
+               halfway down) never shows it to begin with. */
+            const scrollHint = document.querySelector('.reveal-scroll-hint');
+            if (scrollHint) {
+                if (window.scrollY > 8) {
+                    scrollHint.classList.add('is-dismissed');
+                } else {
+                    const dismissHint = () => {
+                        scrollHint.classList.add('is-dismissed');
+                        window.removeEventListener('scroll', dismissHint);
+                    };
+                    window.addEventListener('scroll', dismissHint, { passive: true });
+                }
+            }
 
 /* ---- Sprint section: scroll-driven zoom, then a fade to dark ----
                The timeline starts small and pushes in to its natural size, then the backdrop

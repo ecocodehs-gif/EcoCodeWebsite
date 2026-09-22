@@ -132,6 +132,13 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     50% { transform: translateY(0.2rem) rotate(45deg); }
 }
 
+@keyframes hero-hint-breathe {
+    /* Never dips past 0.6: it is small uppercase type on a dark, busy frame, and
+       the trough has to stay readable. */
+    0%, 100% { opacity: 1; transform: translateY(0); }
+    50% { opacity: 0.6; transform: translateY(-0.15rem); }
+}
+
 /* ---------- Aurora bars (section backdrop, painted in brand greens) ----------
    Built from gradients only: no mask-image, filter, box-shadow, clipping or will-change.
    Those all force a layer to be re-rastered every frame while ScrollSmoother is
@@ -655,20 +662,32 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
 }
 .reveal-video,
 .reveal-canvas {
-    /* Above the scrim, below the panel that slides over the video. */
-    z-index: 2;
+    /* The scrubbed frames: above the static frame they start from, below the
+       panel that slides over them. */
+    z-index: 3;
 }
 .reveal-video {
     background: #0f172a;
 }
+/* The static frame the reveal starts from, as the background of the whole
+   sequence: shown in every path, not just on touch. It is the opening frame
+   (f_001), so it paints the hero before index-runtime.js has decoded anything
+   and holds the bed the canvas draws over — while the 72 frames load
+   progressively, and if they never do. Sits above .reveal-scrim, which is what
+   makes it visible: it used to sit under that opaque layer, so the settled hero
+   on touch showed the scrim colour and no frame at all. */
 .reveal-poster {
-    display: none;
+    display: block;
     position: absolute;
     inset: 0;
+    z-index: 2;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
+    /* Pixel art: the browsers' box filters would soften it, same reason the
+       canvas draws without imageSmoothing. */
+    image-rendering: pixelated;
 }
 .reveal-scrim {
     position: absolute;
@@ -680,6 +699,68 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     opacity: 1;
     pointer-events: none;
 }
+/* The prompt on the opening frame: what to do before anything has moved. Shares
+   the arrow and colour of .hero-scroll-indicator, but lives outside
+   .reveal-panel — it belongs to the frame you land on, not to the hero that
+   arrives after the sequence, so it holds its place and is faded out by
+   index-runtime.js the moment the scroll starts. Sits with the frames (z-index
+   2), under the panel, so it can never ride over the settled hero. */
+.reveal-scroll-hint {
+    position: absolute;
+    bottom: max(2rem, env(safe-area-inset-bottom));
+    left: 50%;
+    /* Above the canvas (also z-index 3 — later in the document, so it paints on
+       top), below the panel. */
+    z-index: 3;
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 1.25rem;
+    color: #4ade80;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transform: translateX(-50%);
+    transition: opacity 0.6s ease, color 180ms ease;
+}
+.reveal-scroll-hint.is-dismissed {
+    opacity: 0;
+    pointer-events: none;
+}
+/* Once it is gone, the prompt stops looping — same treatment the aurora layers
+   get off screen (.aurora-bars.is-paused). */
+.reveal-scroll-hint.is-dismissed .reveal-scroll-hint-label,
+.reveal-scroll-hint.is-dismissed .reveal-scroll-hint-arrow {
+    animation-play-state: paused;
+}
+.reveal-scroll-hint:hover,
+.reveal-scroll-hint:focus-visible {
+    color: #ffffff;
+}
+.reveal-scroll-hint:focus-visible {
+    outline: 2px solid #4ade80;
+    outline-offset: 4px;
+    border-radius: 999px;
+}
+.reveal-scroll-hint-arrow {
+    display: block;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-right: 3px solid currentColor;
+    border-bottom: 3px solid currentColor;
+    transform: rotate(45deg);
+    animation: hero-arrow-bounce 1.8s ease-in-out infinite;
+}
+/* Label breathes with the arrow: same 1.8s and easing, dimming and lifting as the
+   chevron drops, so the pair reads as one gesture rather than two looping
+   effects. Breathing rather than a second bounce keeps the text legible while it
+   is on screen. */
+.reveal-scroll-hint-label {
+    display: block;
+    animation: hero-hint-breathe 1.8s ease-in-out infinite;
+}
 /* Wave backdrop + hero copy, as one sheet. After the planet sequence this sheet
    scrolls up from below the fold and over the planet, which stays put as the
    background behind it — a movement rather than a crossfade. It is opaque so it
@@ -688,8 +769,8 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
 .reveal-panel {
     position: absolute;
     inset: 0;
-    /* Above the planet frames — the sheet slides over them. */
-    z-index: 3;
+    /* Above the frame layers — the sheet slides over them. */
+    z-index: 4;
     /* Keep the handoff layer transparent so only the copy moves over the tree. */
     background: transparent;
     /* Same centring the hero itself used to give the copy. */
@@ -739,18 +820,21 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     .aurora-bar { animation: none; opacity: 0.5; }
     .aurora-bar::after { animation: none; transform: translate3d(0, 20%, 0); }
     .hero-scroll-indicator span { animation: none; }
+    /* The static frame already stands in for the sequence everywhere it does not
+       run, so only the canvas has anything to hide. */
     .reveal-canvas { display: none; }
-    .reveal-poster { display: block; }
 }
 @media (pointer: coarse) {
     .reveal-canvas { display: none; }
-    .reveal-poster { display: block; }
 }
 /* Everywhere the reveal does not run, the hero starts settled with the video
    visible and the copy showing. */
 @media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
     .reveal-hero { --hero-wipe: 1; }
     .reveal-content { opacity: 1; }
+    /* No opening frame to prompt from — the settled hero shows
+       .hero-scroll-indicator in the same spot, so this one would only double up. */
+    .reveal-scroll-hint { display: none; }
 }
 
 /* ---------- Responsive layouts and touch navigation ---------- */

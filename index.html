@@ -39,6 +39,12 @@
                 <canvas class="reveal-canvas" width="2000" height="2000" aria-hidden="true"></canvas>
                 <img class="reveal-poster" src="assets/reveal/frames/f_001.webp" alt="" aria-hidden="true">
                 <div class="reveal-scrim" aria-hidden="true"></div>
+                <!-- Belongs to the opening frame, not to the panel, so it sits still
+                     while the tree grows and is faded out on the first scroll. -->
+                <a class="reveal-scroll-hint" href="#about" aria-label="Scroll to grow the tree">
+                    <span class="reveal-scroll-hint-label">Scroll to grow</span>
+                    <span class="reveal-scroll-hint-arrow" aria-hidden="true"></span>
+                </a>
                 <!-- The wave backdrop and the hero copy ride on one panel: once the planet
                      sequence is done it scrolls up over the planet, which stays put as the
                      backdrop behind it (see .reveal-panel / --hero-wipe in theme.css). -->

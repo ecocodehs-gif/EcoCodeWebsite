@@ -61,6 +61,10 @@ await mkdir('public', { recursive: true });
 //   # Pillow: Image.open(png).convert('RGB').save(f_NNN.webp, quality=85, method=6)
 // 7.2fps over the 10s clip lands on 72 frames, which the runtime hard-codes as
 // FRAME_COUNT in assets/pages/index.jsx; a different rate needs that number too.
+// Lossless WebP is not an option for these: it runs ~32MB against ~5MB at q85.
+// The clip the frames are currently cut from is the pixel-art seedling below;
+// the smooth-rendered take of the same animation sits beside it in assets/,
+// unused — swap the two filenames (here and in the cut above) to go back.
 // Clean stale reveal frames before copying fresh ones
 import { rm } from 'node:fs/promises';
 const revealDest = 'public/assets/reveal/frames';
@@ -92,7 +96,7 @@ await Promise.all([
   cp('assets/hero-waves.css', 'public/assets/hero-waves.css'),
   cp('assets/hero-waves.js', 'public/assets/hero-waves.js'),
   cp('assets/index-runtime.js', 'public/assets/index-runtime.js'),
-  cp('assets/Seedling_growing_into_mature_tree_new.mp4', 'public/assets/Seedling_growing_into_mature_tree_new.mp4'),
+  cp('assets/Seedling_growing_into_mature_tree_pixel.mp4', 'public/assets/Seedling_growing_into_mature_tree_pixel.mp4'),
   cp('assets/projects-runtime.js', 'public/assets/projects-runtime.js'),
    cp('assets/eco-logo.svg', 'public/assets/eco-logo.svg'),
    cp('assets/eco-logo-pixel.svg', 'public/assets/eco-logo-pixel.svg'),
