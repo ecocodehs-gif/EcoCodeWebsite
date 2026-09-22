@@ -54,6 +54,13 @@ for (const page of ['index', 'projects']) {
 // at the repository root for local static hosting, then assemble the deploy
 // directory after all generated assets have been written.
 await mkdir('public', { recursive: true });
+// The hero's scroll-scrubbed sequence ships as committed WebP frames, cut from
+// the source clip with ffmpeg plus Pillow (the ffmpeg here has no WebP encoder)
+// and re-cut by hand whenever the clip changes — nothing below cuts them:
+//   ffmpeg -i assets/<clip>.mp4 -vf "fps=7.2,scale=1280:720" -q:v 2 frame_%03d.png
+//   # Pillow: Image.open(png).convert('RGB').save(f_NNN.webp, quality=85, method=6)
+// 7.2fps over the 10s clip lands on 72 frames, which the runtime hard-codes as
+// FRAME_COUNT in assets/pages/index.jsx; a different rate needs that number too.
 // Clean stale reveal frames before copying fresh ones
 import { rm } from 'node:fs/promises';
 const revealDest = 'public/assets/reveal/frames';
@@ -85,7 +92,7 @@ await Promise.all([
   cp('assets/hero-waves.css', 'public/assets/hero-waves.css'),
   cp('assets/hero-waves.js', 'public/assets/hero-waves.js'),
   cp('assets/index-runtime.js', 'public/assets/index-runtime.js'),
-  cp('assets/Tree_growing_from_seed_1080p_20260922003837.mp4', 'public/assets/Tree_growing_from_seed_1080p_20260922003837.mp4'),
+  cp('assets/Seedling_growing_into_mature_tree_new.mp4', 'public/assets/Seedling_growing_into_mature_tree_new.mp4'),
   cp('assets/projects-runtime.js', 'public/assets/projects-runtime.js'),
    cp('assets/eco-logo.svg', 'public/assets/eco-logo.svg'),
    cp('assets/eco-logo-pixel.svg', 'public/assets/eco-logo-pixel.svg'),

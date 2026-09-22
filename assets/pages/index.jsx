@@ -106,17 +106,17 @@
              /* ---- Logo reveal: scroll-scrubbed canvas image sequence, pinned hero ----
                 Desktop: hero pins for ~+300% scroll. The frame sequence scrubs over the
                 first ~220% of that; the rest is the hand-off, where the wave panel
-                (waves + copy) scrolls up over the planet, which holds its place as the
+                (waves + copy) scrolls up over the frames, which hold their place as the
                 backdrop behind it — a movement rather than a crossfade. The copy and the
                 nav travel with that sheet, so they arrive by scrolling rather than by
                 fading. Preloads 72 WebP frames at q85
-                (2000x2000, ~43KB each, ~3.1MB total) with devicePixelRatio backing
+                (1280x720, ~68KB each, ~4.9MB total) with devicePixelRatio backing
                 store and high-quality imageSmoothing for crisp rendering. drawImage
                 on each scroll tick — no video seeks, no keyframe decode stalls,
-                60fps-equivalent scrub smoothness. The copy is switched on at frame 60,
-                while it is still below the fold, so it rides in unseen; the nav is a
-                fixed layer outside the hero and is given the same travel through
-                --nav-wipe on the root. Then releases to #about.
+                60fps-equivalent scrub smoothness. The copy is switched on as the
+                hand-off starts, while it is still below the fold, so it rides in
+                unseen; the nav is a fixed layer outside the hero and is given the
+                same travel through --nav-wipe on the root. Then releases to #about.
                 Mobile/reduced-motion: show poster image immediately, no pin, no canvas. */
              const revealHero = document.querySelector('.reveal-hero');
              if (revealHero) {
@@ -138,6 +138,19 @@
                       // nothing is cross-faded.
                       const REVEAL_END = 220;
                       const HOLD_END = 360;
+                      // Act two opens on the frame where the clip stops growing: the last
+                      // one here, because this seedling sequence keeps filling in right to
+                      // the end. The clip it replaced had settled by frame 60, which is
+                      // where the hand-off used to trigger, so the constant is the same
+                      // idea — the frame where the tree is grown — read off this clip.
+                      // Frame index, not a count.
+                      const GROWN_FRAME = FRAME_COUNT - 1;
+                      // Pin progress at which the sequence ends, and where the panel starts
+                      // to climb. The wipe used to hold the back half of the pin with the
+                      // darken; it keeps that same half of what is left here, rather than
+                      // stretching to cover the distance the frames no longer occupy.
+                      const WIPE_START = (GROWN_FRAME / (FRAME_COUNT - 1)) * (REVEAL_END / HOLD_END);
+                      const WIPE_END = WIPE_START + (1 - WIPE_START) / 2;
                       const ctx = canvas.getContext('2d');
                       const frames = new Array(FRAME_COUNT);
                       let drawnFrame = -1;
@@ -232,26 +245,25 @@
                                       const p = Math.min(1, (q * HOLD_END) / REVEAL_END);
                                       targetFrame = Math.round(p * (FRAME_COUNT - 1));
                                       scheduleDraw();
-                                      // Frame 60 = 2.5s: the copy is ready to be brought on, so the
-                                      // hand-off starts there and runs to the end of the pin.
-                                      const revealed = targetFrame >= 60;
-                                      const navT = revealed ? Math.min((targetFrame - 60) / 10, 1) : 0;
                                       // Act two: the hand-off. The panel (waves + copy) scrolls
-                                      // up and over the planet, which stays put as the backdrop
+                                      // up and over the frames, which stay put as the backdrop
                                       // — see .reveal-panel in theme.css. Movement rather than a
-                                      // fade, so no frame is ever left showing through a
-                                      // half-transparent layer.
-                                      const wipeStart = (60 / (FRAME_COUNT - 1)) * (REVEAL_END / HOLD_END);
-                                      const wipeEnd = 0.76;
-                                      const wipe = Math.max(0, Math.min(1, (q - wipeStart) / (wipeEnd - wipeStart)));
-                                      const darken = Math.max(0, Math.min(0.92, (q - wipeEnd) / (1 - wipeEnd) * 0.92));
+                                      // fade, so no image is ever left showing through a
+                                      // half-transparent layer. It starts on GROWN_FRAME, so the
+                                      // whole growth lands before the panel moves.
+                                      const wipe = Math.max(0, Math.min(1, (q - WIPE_START) / (WIPE_END - WIPE_START)));
+                                      const darken = Math.max(0, Math.min(0.92, (q - WIPE_END) / (1 - WIPE_END) * 0.92));
+                                      const revealed = targetFrame >= GROWN_FRAME;
+                                      // The nav and the progress bar come on as the panel starts
+                                      // to climb, over the first stretch of the wipe.
+                                      const navT = Math.min(wipe / 0.4, 1);
                                       revealHero.style.setProperty('--hero-wipe', String(wipe));
                                       revealHero.style.setProperty('--hero-darken', String(darken));
                                       // The nav rides the same sheet as the copy. It lives outside
                                       // the hero, so it cannot inherit --hero-wipe; the same value
                                       // is published to the root for it instead. nav-pills brings
-                                      // it on at frame 60, which is the start of the wipe, so it is
-                                      // already showing (and off screen) before it starts climbing.
+                                      // it on at GROWN_FRAME, which is the start of the wipe, so it
+                                      // is already showing (and off screen) before it climbs.
                                       document.documentElement.style.setProperty('--nav-wipe', String(wipe));
                                       document.documentElement.classList.toggle('nav-pills', navT > 0);
                                       // Scroll progress bar visible during reveal
