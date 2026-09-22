@@ -48,6 +48,11 @@ const hosts = document.querySelectorAll('[data-gradient-waves]');
 
 if (hosts.length) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Phones and tablets: the raymarched shader redraws every frame at the hero's
+  // full size, which on mobile GPUs means scroll stutter, heat, and visible
+  // banding/shimmer on the gradient. Touch and small viewports get the static
+  // CSS gradient in theme.css instead of a live WebGL canvas.
+  const touchOrSmall = window.matchMedia('(max-width: 1023px), (pointer: coarse)').matches;
   const hasWebGL2 = (() => {
     try {
       return !!document.createElement('canvas').getContext('webgl2');
@@ -56,7 +61,7 @@ if (hosts.length) {
     }
   })();
 
-  if (!reduceMotion && hasWebGL2) {
+  if (!reduceMotion && !touchOrSmall && hasWebGL2) {
     hosts.forEach(host => {
       // The main hero keeps the waves off screen until its planet sequence finishes
       // (they sit in .reveal-panel, which index-runtime.js keeps parked below the

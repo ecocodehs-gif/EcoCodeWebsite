@@ -104,12 +104,12 @@
              }
 
              /* ---- Logo reveal: scroll-scrubbed canvas image sequence, pinned hero ----
-                Desktop: hero pins for ~+300% scroll. The frame sequence scrubs over the
-                first ~220% of that; the rest is the hand-off, where the wave panel
-                (waves + copy) scrolls up over the frames, which hold their place as the
-                backdrop behind it — a movement rather than a crossfade. The copy and the
-                nav travel with that sheet, so they arrive by scrolling rather than by
-                fading. Preloads 72 WebP frames at q85
+                Every motion-OK device (desktop and mobile): hero pins for ~+300% scroll.
+                The frame sequence scrubs over the first ~220% of that; the rest is the
+                hand-off, where the wave panel (waves + copy) scrolls up over the frames,
+                which hold their place as the backdrop behind it — a movement rather than
+                a crossfade. The copy and the nav travel with that sheet, so they arrive
+                by scrolling rather than by fading. Preloads 72 WebP frames at q85
                 (1280x720, ~69KB each, ~4.9MB total) with a devicePixelRatio backing
                 store drawn without imageSmoothing, so the pixel art stays square at
                 the cover scale the hero box asks for — the zoom the static frame
@@ -119,18 +119,20 @@
                 hand-off starts, while it is still below the fold, so it rides in
                 unseen; the nav is a fixed layer outside the hero and is given the
                 same travel through --nav-wipe on the root. Then releases to #about.
-                Mobile/reduced-motion: show poster image immediately, no pin, no canvas. */
+                Mobile scrolls natively (no ScrollSmoother) — pinning works fine on
+                touch; ignoreMobileResize keeps the URL bar collapsing from re-measuring
+                mid-pin. Reduced-motion: show poster image immediately, no pin, no canvas. */
              const revealHero = document.querySelector('.reveal-hero');
              if (revealHero) {
                  const canvas = revealHero.querySelector('.reveal-canvas');
                  const poster = revealHero.querySelector('.reveal-poster');
                  // One query, stated in two places: this is exactly the condition the
                  // pin below runs under, and the complement of the --hero-wipe rule in
-                 // theme.css. Keying only off pointer/reduced-motion left fine-pointer
-                 // windows narrower than 1024px falling through the middle — the frames
-                 // drew but the pin never ran, so they got a frozen planet and no copy
-                 // at all. Anything outside the query now gets the settled hero at once.
-                 const revealRuns = window.matchMedia('(min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
+                 // theme.css. The reveal is the site's identity, so every viewport with
+                 // animation enabled gets it — desktop and touch alike. Only
+                 // prefers-reduced-motion (or a missing canvas) falls back to the
+                 // settled hero.
+                 const revealRuns = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
 
                   if (revealRuns && canvas) {
                       const FRAME_COUNT = 72;
@@ -191,7 +193,9 @@
                       // upscale would smear the dither into video grain; nearest neighbour
                       // keeps the pixels square, which is the whole look of the sequence.
 
-                      // Load frame 0 first, draw immediately; preload remaining frames in background
+                      // Load frame 0 first, draw immediately; preload rest in background
+                      // (the browser streams and caches the small WebPs by itself — a
+                      // serial chain only delayed the first frames).
                       const loadFrame0 = () => {
                           return new Promise(resolve => {
                               const img = new Image();
@@ -244,7 +248,16 @@
                           if (frames[0]) drawFrame(0);
                           preloadRemaining();
                           const mm = gsap.matchMedia();
-                          mm.add('(min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
+                          // Mobile Safari and Chrome fire resize whenever the URL bar
+                          // collapses or the keyboard opens; a plain refresh there would
+                          // re-measure the pin mid-scrub and lurch the page. This keeps
+                          // resize handling on mobile to true orientation changes.
+                          ScrollTrigger.config({ ignoreMobileResize: true });
+                          // One branch for every motion-OK viewport: the pin, the frame
+                          // scrub and the hand-off are exactly what the visitor came for,
+                          // and ScrollTrigger pinning is designed to work with native
+                          // touch scrolling on phones.
+                          mm.add('(prefers-reduced-motion: no-preference)', () => {
                               // Park the panel below the fold until the scroll says otherwise;
                               // the CSS alone would leave it in place until the first update.
                               revealHero.style.setProperty('--hero-wipe', '0');
@@ -294,11 +307,21 @@
                                   document.fonts.ready.then(() => ScrollTrigger.refresh());
                               }
                           });
-                          mm.add('(prefers-reduced-motion: reduce)', () => {});
-                          mm.add('(pointer: coarse)', () => {});
+                          // Reduced motion (toggled live, or matched at load in a browser
+                          // where the outer check also runs the else-branch): kill the pin
+                          // via matchMedia's cleanup and restate the settled hero inline, so
+                          // the inline --hero-wipe: 0 the reveal wrote can't out-rank the
+                          // stylesheet's reduced-motion value.
+                          mm.add('(prefers-reduced-motion: reduce)', () => {
+                              revealHero.style.setProperty('--hero-wipe', '1');
+                              revealHero.classList.add('is-revealed');
+                              document.documentElement.classList.add('nav-pills');
+                              const sp = document.getElementById('scroll-progress');
+                              if (sp) sp.style.opacity = '1';
+                          });
                       });
                   } else {
-                      // Narrow / touch / reduced-motion: hide canvas, show poster, show content
+                      // Reduced motion (or no canvas): hide canvas, show poster, show content
                       if (canvas) canvas.style.display = 'none';
                       if (poster) poster.style.display = 'block';
                       // State the settled hero on the element too, so a later resize into
@@ -489,15 +512,17 @@
                 // Phones/tablets: the stage is far taller than the viewport, so the
                 // desktop numbers don't transfer — pushStart shrinks the copy to half
                 // size, and PUSH_TO's 1.22 peak zooms it past the screen edges (clipped
-                // by the section's overflow). Start near natural size and zoom just past
-                // it; the ~3px overflow per side is absorbed by the section padding.
-                // The rail runs down the left edge there (see theme.css) and the camera
-                // descends it as you scroll. The query set stays the exact complement of
-                // the desktop branch (matchMedia only fires when at least one condition
-                // matches), so every viewport still lands in exactly one branch.
-                const MOBILE_PUSH_TO = 1.06;
+                // by the section's overflow). The old mobile branch PINNED the section:
+                // with native touch scrolling that pin is the biggest source of jank
+                // and jumpy pin-spacer artifacts on a phone, and a zoom > 1 leaves
+                // text resampled past its layout size. So mobile just fades the
+                // backdrop dark and lights the phases in as the section scrolls
+                // through — the gentle 0.98 → 1 settle keeps a hint of depth without
+                // resampling text or pinning anything. The rail still runs down the
+                // left edge (see theme.css) and fills with the same scrub.
+                const MOBILE_PUSH_TO = 1.0;
                 mm.add('(max-width: 1023px) and (prefers-reduced-motion: no-preference), (max-height: 699px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference)', () =>
-                    build(true, { from: () => 0.85, peak: () => MOBILE_PUSH_TO, travel: () => travelDown(MOBILE_PUSH_TO) }));
+                    build(false, { from: () => 0.98, peak: () => MOBILE_PUSH_TO, travel: () => 0 }));
             }
 
             /* ---- In-page anchors go through the smoother, closing the nav first ---- */

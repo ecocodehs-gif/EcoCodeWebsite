@@ -88,6 +88,22 @@ html.nav-pills .scroll-progress { opacity: 1; }
     z-index: 1;
 }
 
+/* Static wave backdrop: painted only where the WebGL island declines to mount
+   (touch, small viewports, reduced motion — the same gates hero-waves.js uses).
+   Same palette as the shader — horizon haze into brand green — so the fallback
+   reads as the same design. Desktop keeps the transparent container so the
+   shader's fog blends over the hero bed exactly as before. */
+@media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+    .hero-waves {
+        background:
+            radial-gradient(120% 60% at 50% 108%, rgba(74, 222, 128, 0.28), rgba(22, 163, 74, 0.14) 42%, rgba(15, 23, 42, 0) 78%),
+            radial-gradient(140% 70% at 50% 115%, rgba(20, 83, 45, 0.55), rgba(15, 23, 42, 0) 70%);
+    }
+    /* The island marks its host [hidden] when it declines to mount; Tailwind's
+       .hidden would otherwise turn the fallback off with it. */
+    .hero-waves[hidden] { display: block !important; }
+}
+
 .hero-scroll-indicator {
     position: absolute;
     bottom: max(1.5rem, env(safe-area-inset-bottom));
@@ -820,16 +836,15 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     .aurora-bar { animation: none; opacity: 0.5; }
     .aurora-bar::after { animation: none; transform: translate3d(0, 20%, 0); }
     .hero-scroll-indicator span { animation: none; }
-    /* The static frame already stands in for the sequence everywhere it does not
+    /* The static frame already stands in for the sequence wherever it does not
        run, so only the canvas has anything to hide. */
     .reveal-canvas { display: none; }
 }
-@media (pointer: coarse) {
-    .reveal-canvas { display: none; }
-}
-/* Everywhere the reveal does not run, the hero starts settled with the video
-   visible and the copy showing. */
-@media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+/* The hero reveal runs on every motion-OK viewport, desktop and touch alike
+   (the gate lives in index-runtime.js). Reduced motion is the only CSS-driven
+   fallback: the settled hero it declares is also the state the runtime states
+   inline when it declines to pin. */
+@media (prefers-reduced-motion: reduce) {
     .reveal-hero { --hero-wipe: 1; }
     .reveal-content { opacity: 1; }
     /* No opening frame to prompt from — the settled hero shows
@@ -843,9 +858,24 @@ html {
     scroll-padding-top: 5rem;
 }
 
+/* Browsers let a stray fixed-width element push the page wider than the
+   viewport on phones; nothing here needs horizontal scroll, so clip it. */
+html, body {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+}
+
 body { overflow-wrap: break-word; }
 img, video { max-width: 100%; height: auto; }
 #smooth-content .grid > * { min-width: 0; }
+
+/* The aurora section only ever shows 8 bars on a 375px screen; the slower
+   pulse alone keeps it alive without per-frame bands competing with native
+   scroll on a phone. */
+@media (pointer: coarse) {
+    .aurora-bar::after { display: none; }
+    .aurora-bar { opacity: 0.42; }
+}
 
 .staggered-menu-wrapper.fixed-wrapper {
     width: 100%;

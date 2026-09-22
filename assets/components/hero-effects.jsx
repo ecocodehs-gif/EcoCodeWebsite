@@ -13,6 +13,12 @@ const brandGlow = {
 
 // Keep readable HTML in index.html; enhance only these small React islands.
 // Flush mounts before the existing GSAP runtime measures and stages the page.
+// Touch and reduced-motion skip the word-by-word blur entrance: animating a
+// blur filter across headline words is the heaviest thing a phone paints here,
+// and the swap from static HTML to animated spans reads as a text flash. Those
+// visitors get the plain headline that is already in the markup.
+const skipHeadlineMotion = window.matchMedia('(prefers-reduced-motion: reduce), (pointer: coarse)').matches;
+
 const buttonHost = document.getElementById('start-building-glow');
 if (buttonHost) {
   flushSync(() => createRoot(buttonHost).render(
@@ -48,7 +54,7 @@ document.querySelectorAll('[data-border-glow]').forEach(host => {
 });
 
 const headline = document.getElementById('hero-headline');
-if (headline) {
+if (headline && !skipHeadlineMotion) {
   flushSync(() => createRoot(headline).render(
     <>
       <BlurText text="Code for Community." delay={120} direction="top" className="font-display font-bold" />
