@@ -1,0 +1,349 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  --ink: #242722;
+  --muted: #70776d;
+  --paper: #f3f0e8;
+  --line: rgba(58, 73, 56, .18);
+  --moss: #55704f;
+  --sage: #849c75;
+  --brown: #594638;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; min-height: 100%; }
+
+html { background: var(--paper); scroll-behavior: auto; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, a { font: inherit; }
+
+.growth-section {
+  position: relative;
+  height: 10000px;
+  min-height: 10000px;
+  isolation: isolate;
+}
+
+.scene {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(170px, .72fr) minmax(360px, 1.42fr) minmax(120px, .48fr);
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  min-height: 620px;
+  padding: clamp(28px, 5vw, 76px) clamp(22px, 6vw, 100px) clamp(24px, 4vw, 58px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 52% 40%, rgba(255,255,255,.52), transparent 36%),
+    var(--paper);
+}
+
+.scene::before,
+.scene::after {
+  position: absolute;
+  z-index: 0;
+  content: '';
+  pointer-events: none;
+}
+
+.scene::before {
+  top: 7%;
+  right: 9%;
+  width: 19vw;
+  height: 19vw;
+  max-width: 260px;
+  max-height: 260px;
+  min-width: 100px;
+  min-height: 100px;
+  border: 1px solid rgba(101, 124, 84, .12);
+  border-radius: 50%;
+}
+
+.scene::after {
+  inset: 0;
+  opacity: .13;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+.scene-header,
+.stage,
+.scene-footer { position: relative; z-index: 1; }
+
+.scene-header {
+  align-self: center;
+  max-width: 280px;
+  padding-bottom: 12vh;
+}
+
+.copy-stack { position: relative; }
+
+.hero-outro {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 250px;
+  margin: 0;
+  color: var(--moss);
+  font-family: Georgia, serif;
+  font-size: clamp(34px, 4vw, 58px);
+  letter-spacing: -.07em;
+  line-height: .98;
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateY(18px);
+}
+
+.eyebrow,
+.stage-note,
+.progress-label {
+  margin: 0;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.eyebrow { display: flex; align-items: center; gap: 9px; margin-bottom: 25px; }
+.eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: #84a268; }
+
+h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(42px, 5vw, 76px);
+  font-weight: 500;
+  letter-spacing: -.075em;
+  line-height: .94;
+}
+
+h1 em {
+  color: var(--moss);
+  font-family: Georgia, serif;
+  font-size: 1.04em;
+  font-weight: 400;
+  letter-spacing: -.09em;
+}
+
+.intro {
+  max-width: 215px;
+  margin: 27px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.stage {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.plant-wrapper {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 84%;
+  will-change: transform;
+}
+
+.stage-glow {
+  position: absolute;
+  top: 13%;
+  left: 50%;
+  width: min(25vw, 300px);
+  height: min(25vw, 300px);
+  min-width: 150px;
+  min-height: 150px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(211, 192, 137, .11);
+  filter: blur(1px);
+}
+
+.plant {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(100%, 590px);
+  height: min(86vh, 820px);
+  max-height: 86vh;
+  overflow: visible;
+  will-change: transform;
+}
+
+.stage-note { position: absolute; z-index: 2; white-space: nowrap; }
+.stage-note span { color: #a3aa99; }
+.stage-note-top { top: 18%; right: 2%; }
+.stage-note-bottom { bottom: 16%; left: 4%; writing-mode: vertical-rl; transform: rotate(180deg); }
+
+.scene-footer {
+  grid-column: 1 / -1;
+  align-self: end;
+  width: min(100%, 860px);
+  justify-self: center;
+}
+
+.progress-rule {
+  width: 100%;
+  height: 1px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--moss);
+  transform-origin: left center;
+}
+
+.progress-label { display: flex; justify-content: space-between; margin-top: 12px; }
+.progress-percent { color: var(--ink); }
+
+/* SVG styling and initial visual states. */
+.sky { opacity: .88; }
+.sun { transform-origin: center; }
+.soil-texture { opacity: .36; }
+.ground-line { opacity: .82; }
+
+.plant-art > .roots,
+.plant-art > .stem-system,
+.plant-art > .leaves,
+.plant-art > .bud {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.roots path,
+.stem-system path,
+.bud-stem {
+  vector-effect: non-scaling-stroke;
+}
+
+.leaf,
+.leaf-set,
+.vein,
+.bud,
+.bud-shell { transform-box: fill-box; }
+
+
+
+.leaf-left { transform-origin: 100% 50%; }
+.leaf-right { transform-origin: 0% 50%; }
+.leaf { opacity: 0; }
+.leaf-vein { opacity: 0; transform-origin: 0% 50%; }
+.bud { opacity: 0; transform-origin: 304px 132px; }
+
+.root,
+.stem,
+.branch,
+.bud-stem {
+  opacity: 0;
+  transform: none !important;
+}
+
+.soil-particles { opacity: 0; }
+.fallback-plant,
+.growth-js-ready .fallback-plant { display: none !important; opacity: 0; visibility: hidden; }
+.growth-js-ready .plant-art {
+  display: inline !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.growth-complete .plant-art,
+.growth-complete .plant-art > .roots,
+.growth-complete .plant-art > .stem-system,
+.growth-complete .plant-art > .leaves,
+.growth-complete .plant-art > .bud {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.growth-complete .root,
+.growth-complete .stem,
+.growth-complete .branch,
+.growth-complete .bud-stem {
+  opacity: 1 !important;
+  stroke-dasharray: none !important;
+  stroke-dashoffset: 0 !important;
+}
+.growth-complete .leaf,
+.growth-complete .leaf-vein,
+.growth-complete .bud {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+.growth-js-ready:not(.growth-started) .plant-art { opacity: 0 !important; }
+.growth-js-ready .plant-art > .roots,
+.growth-js-ready .plant-art > .stem-system,
+.growth-js-ready .plant-art > .leaves,
+.growth-js-ready .plant-art > .bud {
+  display: inline !important;
+}
+.fallback-plant path { display: block; opacity: 1; visibility: visible; transform: none !important; }
+.soil-particles .particle { transform-box: fill-box; transform-origin: center; }
+
+@media (max-width: 820px) {
+  .growth-section { min-height: 10000px; }
+  .scene {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    min-height: 560px;
+    padding: 24px 22px 28px;
+  }
+  .scene-header {
+    align-self: start;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+  }
+  .eyebrow { margin-bottom: 13px; }
+  h1 { font-size: clamp(39px, 11vw, 64px); }
+  .intro { margin-top: 12px; }
+  .stage { min-height: 0; }
+  .plant { width: min(100%, 520px); height: min(71vh, 680px); max-height: 71vh; }
+  .stage-note-top { top: 10%; right: 0; }
+  .stage-note-bottom { bottom: 10%; left: 0; }
+  .scene-footer { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .scene { padding-left: 18px; padding-right: 18px; }
+  .growth-section { min-height: 10000px; }
+  .plant { width: 112%; height: min(67vh, 610px); max-width: none; margin-left: -6%; }
+  .stage-note { font-size: 9px; }
+  .stage-note-bottom { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .growth-section { height: 100vh; min-height: 620px; }
+  .scene { height: 100vh; }
+  .leaf,
+  .leaf-vein,
+  .bud,
+  .hero-outro,
+  .soil-particles,
+  .root,
+  .stem,
+  .branch,
+  .bud-stem {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .progress-fill { width: 100%; }
+}

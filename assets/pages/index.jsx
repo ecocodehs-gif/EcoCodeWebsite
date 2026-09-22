@@ -137,7 +137,7 @@
                       // scrolls the wave panel up over the planet. Both acts are movement —
                       // nothing is cross-faded.
                       const REVEAL_END = 220;
-                      const HOLD_END = 300;
+                      const HOLD_END = 360;
                       const ctx = canvas.getContext('2d');
                       const frames = new Array(FRAME_COUNT);
                       let drawnFrame = -1;
@@ -182,15 +182,18 @@
                           return Promise.all(promises);
                       };
 
-                      // Draw frame with cover math (square canvas, any CSS size)
+                      // Draw each 16:9 frame with centered cover math, preserving its aspect ratio.
                       const drawFrame = (idx) => {
                           if (idx < 0 || idx >= FRAME_COUNT || !frames[idx]) return;
+                          const frame = frames[idx];
                           const cw = canvas.width, ch = canvas.height;
-                          const scale = Math.max(cw / ch, 1);
-                          const w = ch * scale;
+                          const scale = Math.max(cw / frame.naturalWidth, ch / frame.naturalHeight);
+                          const w = frame.naturalWidth * scale;
+                          const h = frame.naturalHeight * scale;
                           const x = (cw - w) / 2;
+                          const y = (ch - h) / 2;
                           ctx.clearRect(0, 0, cw, ch);
-                          ctx.drawImage(frames[idx], x, 0, w, ch);
+                          ctx.drawImage(frame, x, y, w, h);
                       };
 
                       // rAF loop: only redraw when target changes
@@ -239,8 +242,11 @@
                                       // fade, so no frame is ever left showing through a
                                       // half-transparent layer.
                                       const wipeStart = (60 / (FRAME_COUNT - 1)) * (REVEAL_END / HOLD_END);
-                                      const wipe = Math.max(0, Math.min(1, (q - wipeStart) / (1 - wipeStart)));
+                                      const wipeEnd = 0.76;
+                                      const wipe = Math.max(0, Math.min(1, (q - wipeStart) / (wipeEnd - wipeStart)));
+                                      const darken = Math.max(0, Math.min(0.92, (q - wipeEnd) / (1 - wipeEnd) * 0.92));
                                       revealHero.style.setProperty('--hero-wipe', String(wipe));
+                                      revealHero.style.setProperty('--hero-darken', String(darken));
                                       // The nav rides the same sheet as the copy. It lives outside
                                       // the hero, so it cannot inherit --hero-wipe; the same value
                                       // is published to the root for it instead. nav-pills brings

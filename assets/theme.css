@@ -653,14 +653,13 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     object-fit: cover;
     object-position: center;
 }
+.reveal-video,
 .reveal-canvas {
-    /* Canvas draws frames via JS; size from width/height attrs + CSS cover */
-    image-rendering: auto;
-    /* Above the scrim (else the opaque scrim would hide the frames), below
-       .reveal-panel, which is the sheet that slides up over them. */
+    /* Above the scrim, below the panel that slides over the video. */
     z-index: 2;
-    /* The planet holds its place: it is the backdrop the wave panel scrolls over,
-       not a second panel in a stack. Its frames keep animating underneath. */
+}
+.reveal-video {
+    background: #0f172a;
 }
 .reveal-poster {
     display: none;
@@ -691,13 +690,34 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     inset: 0;
     /* Above the planet frames — the sheet slides over them. */
     z-index: 3;
-    /* The navy the waves render against, carried by the sheet itself so it never
-       lets the planet show through underneath. */
-    background: #0f172a;
+    /* Keep the handoff layer transparent so only the copy moves over the tree. */
+    background: transparent;
     /* Same centring the hero itself used to give the copy. */
     display: flex;
     align-items: center;
     transform: translate3d(0, calc((1 - var(--hero-wipe, 0)) * 100%), 0);
+}
+.reveal-panel > .hero-waves {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 1;
+    -webkit-mask-image: linear-gradient(to top, #000 0%, #000 80%, transparent 100%);
+    mask-image: linear-gradient(to top, #000 0%, #000 80%, transparent 100%);
+}
+.reveal-panel > .hero-waves,
+.reveal-panel > .hero-waves .gradient-waves-container {
+    width: 100%;
+    height: 100%;
+}
+.reveal-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: rgb(15 23 42 / var(--hero-darken, 0));
 }
 .reveal-content {
     position: relative;
@@ -719,16 +739,15 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
     .aurora-bar { animation: none; opacity: 0.5; }
     .aurora-bar::after { animation: none; transform: translate3d(0, 20%, 0); }
     .hero-scroll-indicator span { animation: none; }
-    .reveal-video { display: none; }
+    .reveal-canvas { display: none; }
     .reveal-poster { display: block; }
 }
 @media (pointer: coarse) {
-    .reveal-video { display: none; }
+    .reveal-canvas { display: none; }
     .reveal-poster { display: block; }
 }
-/* Everywhere the reveal does not run — the exact complement of the query used in
-   index-runtime.js — the hero starts settled: wave panel in place, copy showing,
-   nothing parked below the fold waiting for a scroll that will never drive it. */
+/* Everywhere the reveal does not run, the hero starts settled with the video
+   visible and the copy showing. */
 @media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
     .reveal-hero { --hero-wipe: 1; }
     .reveal-content { opacity: 1; }

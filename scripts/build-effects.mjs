@@ -85,6 +85,7 @@ await Promise.all([
   cp('assets/hero-waves.css', 'public/assets/hero-waves.css'),
   cp('assets/hero-waves.js', 'public/assets/hero-waves.js'),
   cp('assets/index-runtime.js', 'public/assets/index-runtime.js'),
+  cp('assets/Tree_growing_from_seed_1080p_20260922003837.mp4', 'public/assets/Tree_growing_from_seed_1080p_20260922003837.mp4'),
   cp('assets/projects-runtime.js', 'public/assets/projects-runtime.js'),
    cp('assets/eco-logo.svg', 'public/assets/eco-logo.svg'),
    cp('assets/eco-logo-pixel.svg', 'public/assets/eco-logo-pixel.svg'),
