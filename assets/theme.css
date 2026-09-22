@@ -720,10 +720,12 @@ html.nav-pills .hero-scroll-indicator { opacity: 1; }
    .reveal-panel — it belongs to the frame you land on, not to the hero that
    arrives after the sequence, so it holds its place and is faded out by
    index-runtime.js the moment the scroll starts. Sits with the frames (z-index
-   2), under the panel, so it can never ride over the settled hero. */
+   3), under the panel, so it can never ride over the settled hero. Anchored to
+   the top of the frame, just under the fixed nav pills, clear of the browser
+   UI that crowds the bottom of a phone screen. */
 .reveal-scroll-hint {
     position: absolute;
-    bottom: max(2rem, env(safe-area-inset-bottom));
+    top: calc(5.5rem + env(safe-area-inset-top));
     left: 50%;
     /* Above the canvas (also z-index 3 — later in the document, so it paints on
        top), below the panel. */
