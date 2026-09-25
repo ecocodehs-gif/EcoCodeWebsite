@@ -915,8 +915,8 @@ img, video { max-width: 100%; height: auto; }
     #top p { font-size: 1.125rem; line-height: 1.65; }
     .hero-actions { max-width: 26rem; margin-inline: auto; }
     .hero-actions a { display: flex; align-items: center; justify-content: center; min-height: 48px; }
-    #smooth-content > section { padding-block: 3rem; }
-    #smooth-content > section > div > .mb-16 { margin-bottom: 2rem; }
+    #smooth-content section { padding-block: 3rem; }
+    #smooth-content section > div > .mb-16 { margin-bottom: 2rem; }
     #smooth-content .grid { gap: 1.5rem; }
     .sprint { min-height: auto; }
     /* The timeline now runs down the LEFT edge on phones (the JS runs its
@@ -945,7 +945,7 @@ img, video { max-width: 100%; height: auto; }
         padding-top: calc(6rem + env(safe-area-inset-top));
         padding-inline: max(1.25rem, env(safe-area-inset-left)) max(1.25rem, env(safe-area-inset-right));
     }
-    #smooth-content > footer { padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
+    #smooth-content footer { padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
 }
 
 /* Landscape phones have little vertical room; keep menu links scrollable. */
@@ -963,8 +963,8 @@ img, video { max-width: 100%; height: auto; }
 
 @media (max-width: 1023px) {
     #smooth-content > header > .mx-auto,
-    #smooth-content > section > .mx-auto,
-    #smooth-content > footer > .mx-auto {
+    #smooth-content section > .mx-auto,
+    #smooth-content footer > .mx-auto {
         padding-left: max(1rem, env(safe-area-inset-left));
         padding-right: max(1rem, env(safe-area-inset-right));
     }
@@ -1018,26 +1018,39 @@ html.nav-visible #site-nav { opacity: 1; pointer-events: auto; }
     transform: translate3d(0, calc((1 - var(--nav-wipe, 1)) * 100vh), 0);
 }
 
+/* ---------- CTA + footer backdrop ---------- */
+/* One shared wrapper owns a single aurora-bars layer spanning the CTA section
+   and the footer, so the bars run unbroken to the very bottom of the page.
+   Sections/footers inside it are no longer direct children of #smooth-content,
+   which is why the responsive rules above use descendant selectors. */
+.cta-footer {
+    position: relative;
+    overflow: hidden;
+}
+
 /* ---------- Footer giant ---------- */
 /* Giant outlined ECOCODE sign-off shared by every page. The footer clips it
    just below the baseline so the caps read whole but touch the bottom edge.
    Decorative only (markup is aria-hidden): no JS, no animation, static under
    reduced motion. Outfit matches the hero headline face and is self-hosted. */
 .site-footer {
+    position: relative;
     overflow: hidden;
     padding-bottom: 0;
 }
 /* The generic responsive rule below adds bottom padding to footers on phones;
    the giant must sit flush with the edge, so this wins by specificity. */
-#smooth-content > footer.site-footer {
+#smooth-content footer.site-footer {
     padding-bottom: 0;
 }
 .footer-giant {
     display: block;
+    position: relative;
+    z-index: 1;
     width: 100%;
     margin-top: clamp(1.5rem, 4vw, 3rem);
     font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
-    font-weight: 800;
+    font-weight: 100;
     font-size: clamp(3.5rem, 18vw, 18rem);
     line-height: 0.8;
     letter-spacing: -0.02em;
@@ -1047,8 +1060,8 @@ html.nav-visible #site-nav { opacity: 1; pointer-events: auto; }
     user-select: none;
     pointer-events: none;
     color: transparent;
-    -webkit-text-stroke: 1.5px rgba(248, 250, 252, 0.32);
-    text-stroke: 1.5px rgba(248, 250, 252, 0.32);
+    -webkit-text-stroke: 1px rgba(248, 250, 252, 0.35);
+    paint-order: stroke fill;
     /* Pushes the baseline to the footer's bottom edge: the layout box is
        unchanged, the glyphs shift down and the footer clips them. */
     transform: translate3d(0, 0.18em, 0);
@@ -1061,6 +1074,6 @@ html.nav-visible #site-nav { opacity: 1; pointer-events: auto; }
 }
 @media (max-width: 767px) {
     .footer-giant {
-        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke: 1px rgba(248, 250, 252, 0.35);
     }
 }

@@ -228,8 +228,10 @@
                 </div>
             </section>
 
-            <!-- Call to Action -->
-            <section class="relative overflow-hidden py-20 bg-brand-nav text-white text-center">
+            <!-- Call to Action + Footer: one shared backdrop so a single
+                 aurora-bars layer runs unbroken from the CTA down behind
+                 the giant to the very bottom of the page. -->
+            <div class="cta-footer relative overflow-hidden bg-brand-nav">
                 <div class="aurora-bars" aria-hidden="true">
                     <span class="aurora-bar" style="--i: 0"></span>
                     <span class="aurora-bar" style="--i: 1"></span>
@@ -240,25 +242,27 @@
                     <span class="aurora-bar" style="--i: 6"></span>
                     <span class="aurora-bar" style="--i: 7"></span>
                 </div>
-                <div class="max-w-4xl mx-auto px-4 relative z-10" data-reveal>
-                    <h2 class="text-3xl font-bold mb-6">Got a Better Problem?</h2>
-                    <p class="text-lg text-gray-300 mb-10">The board is not fixed. If you can name the user, the pain and the number you would move, the sprint is yours to claim.</p>
-                    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSe8jXCI5PJqd5-YQhOikwNoQyigVHh08dyGxh6m30CbZzfGGw/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="bg-brand hover:bg-brand-light text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center justify-center">
-                            <i class="fa-solid fa-rocket mr-2"></i> Pitch a Project
-                        </a>
+                <section class="relative py-20 text-white text-center">
+                    <div class="max-w-4xl mx-auto px-4 relative z-10" data-reveal>
+                        <h2 class="text-3xl font-bold mb-6">Got a Better Problem?</h2>
+                        <p class="text-lg text-gray-300 mb-10">The board is not fixed. If you can name the user, the pain and the number you would move, the sprint is yours to claim.</p>
+                        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                            <a href="https://docs.google.com/forms/d/e/1FAIpQLSe8jXCI5PJqd5-YQhOikwNoQyigVHh08dyGxh6m30CbZzfGGw/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="bg-brand hover:bg-brand-light text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center justify-center">
+                                <i class="fa-solid fa-rocket mr-2"></i> Pitch a Project
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Footer -->
-            <footer class="site-footer bg-gray-900 text-gray-400 pt-8 text-center">
-                <div class="max-w-7xl mx-auto px-4">
-                    <p>&copy; 2026 EcoCode Incubator. A student-led Youth NPO.</p>
-                    <p class="text-sm mt-2">Funded in part by potential Provincial Grants &amp; Community Partnerships.</p>
-                </div>
-                <div class="footer-giant" aria-hidden="true">ECOCODE</div>
-            </footer>
+                <!-- Footer -->
+                <footer class="site-footer text-gray-400 pt-8 text-center">
+                    <div class="max-w-7xl mx-auto px-4 relative z-10">
+                        <p>&copy; 2026 EcoCode Incubator. A student-led Youth NPO.</p>
+                        <p class="text-sm mt-2">Funded in part by potential Provincial Grants &amp; Community Partnerships.</p>
+                    </div>
+                    <div class="footer-giant" aria-hidden="true">ECOCODE</div>
+                </footer>
+            </div>
 
         </div>
     </div>
