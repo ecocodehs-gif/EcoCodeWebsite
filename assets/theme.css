@@ -1017,3 +1017,50 @@ html.nav-visible #site-nav { opacity: 1; pointer-events: auto; }
 .staggered-menu-header {
     transform: translate3d(0, calc((1 - var(--nav-wipe, 1)) * 100vh), 0);
 }
+
+/* ---------- Footer giant ---------- */
+/* Giant outlined ECOCODE sign-off shared by every page. The footer clips it
+   just below the baseline so the caps read whole but touch the bottom edge.
+   Decorative only (markup is aria-hidden): no JS, no animation, static under
+   reduced motion. Outfit matches the hero headline face and is self-hosted. */
+.site-footer {
+    overflow: hidden;
+    padding-bottom: 0;
+}
+/* The generic responsive rule below adds bottom padding to footers on phones;
+   the giant must sit flush with the edge, so this wins by specificity. */
+#smooth-content > footer.site-footer {
+    padding-bottom: 0;
+}
+.footer-giant {
+    display: block;
+    width: 100%;
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+    font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(3.5rem, 18vw, 18rem);
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(248, 250, 252, 0.32);
+    text-stroke: 1.5px rgba(248, 250, 252, 0.32);
+    /* Pushes the baseline to the footer's bottom edge: the layout box is
+       unchanged, the glyphs shift down and the footer clips them. */
+    transform: translate3d(0, 0.18em, 0);
+}
+/* Browsers without text-stroke support fall back to a faint solid fill. */
+@supports not (-webkit-text-stroke: 1px black) {
+    .footer-giant {
+        color: rgba(248, 250, 252, 0.1);
+    }
+}
+@media (max-width: 767px) {
+    .footer-giant {
+        -webkit-text-stroke-width: 1px;
+    }
+}
